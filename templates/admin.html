@@ -10,11 +10,6 @@
     gap: 2rem;
     margin-top: 1rem;
   }
-  @media (max-width: 768px) {
-    .admin-grid {
-      grid-template-columns: 1fr;
-    }
-  }
   .sidebar-menu {
     display: flex;
     flex-direction: column;
@@ -48,6 +43,9 @@
     padding: 2rem;
     backdrop-filter: blur(10px);
     box-shadow: var(--shadow-premium);
+    min-width: 0;
+    width: 100%;
+    box-sizing: border-box;
   }
   .admin-table {
     width: 100%;
@@ -76,17 +74,58 @@
   .tab-content.active {
     display: block;
   }
+  .admin-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    gap: 1rem;
+  }
+
+  @media (max-width: 768px) {
+    .admin-grid {
+      grid-template-columns: 1fr;
+      gap: 1rem;
+    }
+    .sidebar-menu {
+      flex-direction: row !important;
+      flex-wrap: wrap;
+      width: 100%;
+    }
+    .sidebar-item {
+      flex: 1 1 auto;
+      text-align: center;
+      padding: 0.6rem 0.8rem;
+      font-size: 0.9rem;
+    }
+    .sidebar-item.active {
+      border-left: none;
+      border-bottom: 3px solid var(--primary);
+      border-radius: 8px 8px 0 0;
+    }
+    .panel-card {
+      padding: 1rem;
+    }
+    .admin-header {
+      flex-direction: column;
+      align-items: flex-start;
+      margin-bottom: 1.5rem;
+    }
+    .admin-header h1 {
+      font-size: 1.8rem !important;
+    }
+  }
 </style>
 {% endblock %}
 
 {% block content %}
 <div>
-  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+  <div class="admin-header">
     <div>
-      <h1 style="font-size: 2.2rem; font-weight: 800; background: linear-gradient(90deg, var(--primary), var(--secondary)); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;">Painel Administrativo</h1>
-      <p style="color: var(--text-secondary);">Controle global de usuários, animais cadastrados e auditoria de ações.</p>
+      <h1 style="font-size: 2.2rem; font-weight: 800; background: linear-gradient(90deg, var(--primary), var(--secondary)); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; margin: 0;">Painel Administrativo</h1>
+      <p style="color: var(--text-secondary); margin: 0.25rem 0 0 0;">Controle global de usuários, animais cadastrados e auditoria de ações.</p>
     </div>
-    <div style="background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.2); padding: 0.5rem 1rem; border-radius: 20px; color: var(--primary); font-weight: 600; font-size: 0.85rem;">
+    <div style="background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.2); padding: 0.5rem 1rem; border-radius: 20px; color: var(--primary); font-weight: 600; font-size: 0.85rem; white-space: nowrap; align-self: flex-start;">
       <i class="fa-solid fa-user-shield"></i> Administrador
     </div>
   </div>
