@@ -1,0 +1,122 @@
+{% extends "base.html" %}
+
+{% block title %}Cadastrar Novo Pet - PetMatch{% endblock %}
+
+{% block head %}
+<style>
+  .form-group {
+    margin-bottom: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  .form-group label {
+    font-size: 0.95rem;
+    color: var(--text-secondary);
+    font-weight: 500;
+  }
+  .form-group input, .form-group select {
+    background: rgba(15, 23, 42, 0.6);
+    border: 1px solid var(--border-card);
+    padding: 0.8rem 1rem;
+    border-radius: 8px;
+    color: var(--text-primary);
+    font-family: var(--font-main);
+    font-size: 1rem;
+    transition: var(--transition);
+  }
+  .form-group input:focus, .form-group select:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15);
+  }
+  .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+  }
+  @media (max-width: 600px) {
+    .form-row {
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+    }
+  }
+  .hint-text {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    margin-top: 0.25rem;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div style="max-width: 600px; margin: 3rem auto; padding: 2.5rem; background: var(--bg-card); border: 1px solid var(--border-card); border-radius: 16px; backdrop-filter: blur(10px); box-shadow: var(--shadow-premium);">
+  
+  <h2 style="font-size: 2rem; margin-bottom: 0.5rem; font-weight: 700; text-align: center; color: var(--text-primary);">Cadastrar Animal para Adoção</h2>
+  <p style="color: var(--text-secondary); text-align: center; margin-bottom: 2.5rem; font-size: 0.95rem;">
+    Preencha as informações para registrar o pet na plataforma do PetMatch.
+  </p>
+
+  <form action="{{ url_for('cadastrar_pet') }}" method="POST" enctype="multipart/form-data">
+    
+    <div class="form-group">
+      <label for="nome">Nome do Pet</label>
+      <input type="text" id="nome" name="nome" placeholder="Ex: Bob, Pipoca, Mel" required autocomplete="off">
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="especie">Espécie</label>
+        <select id="especie" name="especie" required>
+          <option value="" disabled selected>Selecione...</option>
+          <option value="Cão">Cão (Cachorro)</option>
+          <option value="Gato">Gato</option>
+          <option value="Ave">Ave (Pássaro)</option>
+          <option value="Roedor">Roedor (Hamster, Porquinho da Índia, etc.)</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="sexo">Sexo</label>
+        <select id="sexo" name="sexo" required>
+          <option value="" disabled selected>Selecione...</option>
+          <option value="Macho">Macho</option>
+          <option value="Fêmea">Fêmea</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="porte">Porte</label>
+        <select id="porte" name="porte" required>
+          <option value="" disabled selected>Selecione...</option>
+          <option value="Pequeno">Pequeno</option>
+          <option value="Médio">Médio</option>
+          <option value="Grande">Grande</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="foto">Foto do Pet</label>
+        <input type="file" id="foto" name="foto" accept="image/*" style="padding: 0.6rem;">
+        <span class="hint-text">Selecione uma imagem nítida (JPG, PNG).</span>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="tags">Personalidade e Características (Tags)</label>
+      <input type="text" id="tags" name="tags" placeholder="Ex: Dócil, Castrado, Ativo, Calmo">
+      <span class="hint-text">Separe as características por vírgula para exibi-las em pílulas separadas.</span>
+    </div>
+
+    <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1.5rem; height: 48px; font-size: 1.05rem;">
+      <i class="fa-solid fa-cloud-arrow-up"></i> Concluir Cadastro
+    </button>
+    
+    <a href="{{ url_for('catalogo') }}" class="btn btn-outline" style="width: 100%; margin-top: 0.75rem; height: 46px; font-size: 0.95rem;">
+      Cancelar
+    </a>
+  </form>
+</div>
+{% endblock %}

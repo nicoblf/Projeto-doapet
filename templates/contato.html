@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+
+{% block title %}Contato - PetMatch{% endblock %}
+
+{% block head %}
+<style>
+  .form-group {
+    margin-bottom: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  .form-group label {
+    font-size: 0.95rem;
+    color: var(--text-secondary);
+    font-weight: 500;
+  }
+  .form-group input, .form-group textarea {
+    background: rgba(15, 23, 42, 0.6);
+    border: 1px solid var(--border-card);
+    padding: 0.8rem 1rem;
+    border-radius: 8px;
+    color: var(--text-primary);
+    font-family: var(--font-main);
+    font-size: 1rem;
+    transition: var(--transition);
+  }
+  .form-group input:focus, .form-group textarea:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15);
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="contact-container">
+  
+  <!-- Info Col -->
+  <div style="display: flex; flex-direction: column; gap: 2rem; justify-content: center;">
+    <div>
+      <h1 style="font-size: 2.8rem; margin-bottom: 1rem; font-weight: 800; background: linear-gradient(90deg, var(--primary), var(--secondary)); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;">Fale Conosco</h1>
+      <p style="color: var(--text-secondary); line-height: 1.6; font-size: 1.1rem;">Tem alguma dúvida, sugestão ou deseja vincular sua ONG à nossa plataforma? Mande uma mensagem para o nosso time de suporte.</p>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+      <div style="display: flex; gap: 1rem; align-items: center;">
+        <div style="width: 50px; height: 50px; border-radius: 50%; background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.2); display: flex; align-items: center; justify-content: center; color: var(--primary);">
+          <i class="fa-solid fa-envelope" style="font-size: 1.2rem;"></i>
+        </div>
+        <div>
+          <p style="font-weight: 600; color: var(--text-primary);">E-mail Suporte</p>
+          <p style="color: var(--text-secondary); font-size: 0.95rem;">contato@petmatch.com</p>
+        </div>
+      </div>
+
+      <div style="display: flex; gap: 1rem; align-items: center;">
+        <div style="width: 50px; height: 50px; border-radius: 50%; background: rgba(99, 102, 241, 0.1); border: 1px solid rgba(99, 102, 241, 0.2); display: flex; align-items: center; justify-content: center; color: var(--secondary);">
+          <i class="fa-brands fa-whatsapp" style="font-size: 1.2rem;"></i>
+        </div>
+        <div>
+          <p style="font-weight: 600; color: var(--text-primary);">WhatsApp Equipe</p>
+          <p style="color: var(--text-secondary); font-size: 0.95rem;">+55 (11) 99999-9999</p>
+        </div>
+      </div>
+
+      <div style="display: flex; gap: 1rem; align-items: center;">
+        <div style="width: 50px; height: 50px; border-radius: 50%; background: rgba(255, 255, 255, 0.05); border: 1px solid var(--border-card); display: flex; align-items: center; justify-content: center; color: var(--text-secondary);">
+          <i class="fa-solid fa-location-dot" style="font-size: 1.2rem;"></i>
+        </div>
+        <div>
+          <p style="font-weight: 600; color: var(--text-primary);">Localização</p>
+          <p style="color: var(--text-secondary); font-size: 0.95rem;">Universidade Polo Extensão, Brasil</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Form Col -->
+  <div style="background: var(--bg-card); border: 1px solid var(--border-card); border-radius: 16px; padding: 2.5rem; backdrop-filter: blur(10px); box-shadow: var(--shadow-premium);">
+    <form action="{{ url_for('contato') }}" method="POST">
+      <div class="form-group">
+        <label for="nome">Nome Completo</label>
+        <input type="text" id="nome" name="nome" placeholder="Digite seu nome completo" required>
+      </div>
+
+      <div class="form-group">
+        <label for="email">E-mail de Contato</label>
+        <input type="email" id="email" name="email" placeholder="nome@exemplo.com" required>
+      </div>
+
+      <div class="form-group">
+        <label for="assunto">Assunto</label>
+        <input type="text" id="assunto" name="assunto" placeholder="Ex: Parceria, Dúvidas..." required>
+      </div>
+
+      <div class="form-group">
+        <label for="mensagem">Mensagem</label>
+        <textarea id="mensagem" name="mensagem" rows="5" placeholder="Escreva sua mensagem aqui..." required></textarea>
+      </div>
+
+      <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1rem; height: 48px;">
+        <i class="fa-solid fa-paper-plane"></i> Enviar Mensagem
+      </button>
+    </form>
+  </div>
+
+</div>
+{% endblock %}

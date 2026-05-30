@@ -1,0 +1,224 @@
+{% extends "base.html" %}
+
+{% block title %}Gerenciar Candidaturas - PetMatch{% endblock %}
+
+{% block head %}
+<style>
+  .candidaturas-container {
+    max-width: 1000px;
+    margin: 2rem auto;
+  }
+  .candidatura-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-card);
+    border-radius: 16px;
+    padding: 1.75rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+    box-shadow: var(--shadow-premium);
+    backdrop-filter: blur(10px);
+    transition: var(--transition);
+  }
+  .candidatura-card:hover {
+    border-color: rgba(99, 102, 241, 0.2);
+  }
+  .card-header-section {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--border-card);
+    padding-bottom: 1rem;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+  .card-body-section {
+    display: grid;
+    grid-template-columns: 100px 1fr 1.2fr;
+    gap: 2rem;
+  }
+  @media (max-width: 800px) {
+    .card-body-section {
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+      text-align: center;
+    }
+    .pet-thumb-wrapper {
+      margin: 0 auto;
+    }
+  }
+  .pet-thumb-wrapper {
+    width: 100px;
+    height: 100px;
+    border-radius: 12px;
+    overflow: hidden;
+    background: #1e293b;
+    flex-shrink: 0;
+  }
+  .pet-thumb-wrapper img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .info-block {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+  }
+  .info-block label {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    font-weight: 600;
+  }
+  .info-block span {
+    font-size: 0.95rem;
+    color: var(--text-primary);
+    font-weight: 500;
+  }
+  .status-badge {
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 700;
+  }
+  .status-badge-pendente {
+    background: rgba(245, 158, 11, 0.1);
+    color: var(--status-yellow);
+    border: 1px solid rgba(245, 158, 11, 0.2);
+  }
+  .status-badge-aprovado {
+    background: rgba(16, 185, 129, 0.1);
+    color: var(--status-green);
+    border: 1px solid rgba(16, 185, 129, 0.2);
+  }
+  .status-badge-recusado {
+    background: rgba(239, 68, 68, 0.1);
+    color: var(--status-red);
+    border: 1px solid rgba(239, 68, 68, 0.2);
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="candidaturas-container">
+  <div class="breadcrumbs" style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 1.5rem;">
+    <a href="{{ url_for('index') }}" style="color: var(--text-secondary); text-decoration: none;">Início</a>
+    <i class="fa-solid fa-chevron-right" style="font-size: 0.75rem;"></i>
+    <span>Gerenciar Candidaturas</span>
+  </div>
+
+  <h1 style="font-size: 2.2rem; font-weight: 800; background: linear-gradient(90deg, var(--primary), var(--secondary)); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 0.5rem;">Gerenciamento de Candidaturas</h1>
+  <p style="color: var(--text-secondary); margin-bottom: 2rem;">Analise os perfis dos adotantes interessados e aprove ou decline as solicitações.</p>
+
+  {% if candidaturas %}
+    {% for cand in candidaturas %}
+      <div class="candidatura-card">
+        <!-- Cabeçalho do Card -->
+        <div class="card-header-section">
+          <div>
+            <span style="font-size: 0.85rem; color: var(--text-secondary);">
+              Solicitação ID #{{ cand.id }} &bull; Recebida em {{ cand.data_solicitacao.strftime('%d/%m/%Y às %H:%M') }}
+            </span>
+          </div>
+          <div>
+            <span class="status-badge status-badge-{{ cand.status | lower }}">
+              {% if cand.status == 'Pendente' %}
+                ⏳ Pendente
+              {% elif cand.status == 'Aprovado' %}
+                ✅ Aprovada
+              {% else %}
+                ❌ Recusada
+              {% endif %}
+            </span>
+          </div>
+        </div>
+
+        <!-- Corpo do Card -->
+        <div class="card-body-section">
+          <!-- Miniatura Pet -->
+          <div class="pet-thumb-wrapper">
+            {% if cand.animal.foto_url %}
+              <img src="{{ url_for('static', filename='uploads/' + cand.animal.foto_url) }}" alt="Foto de {{ cand.animal.nome }}">
+            {% else %}
+              <div style="height: 100%; display: flex; align-items: center; justify-content: center;">
+                <i class="fa-solid fa-paw" style="font-size: 2.5rem; color: var(--text-secondary); opacity: 0.3;"></i>
+              </div>
+            {% endif %}
+          </div>
+
+          <!-- Informações do Pet -->
+          <div style="display: flex; flex-direction: column; gap: 1rem;">
+            <h3 style="font-size: 1.25rem; font-weight: 700; color: var(--text-primary); margin: 0;">Pet Solicitado</h3>
+            <div class="info-block">
+              <label>Nome do Animal</label>
+              <span>{{ cand.animal.nome }} ({{ cand.animal.especie }})</span>
+            </div>
+            <div class="info-block">
+              <label>Porte / Sexo</label>
+              <span>{{ cand.animal.porte }} &bull; {{ cand.animal.sexo }}</span>
+            </div>
+          </div>
+
+          <!-- Informações do Adotante -->
+          <div style="display: flex; flex-direction: column; gap: 1rem;">
+            <h3 style="font-size: 1.25rem; font-weight: 700; color: var(--text-primary); margin: 0;">Dados do Adotante</h3>
+            <div class="info-block">
+              <label>Nome Completo</label>
+              <span>{{ cand.adotante.nome }}</span>
+            </div>
+            <div class="info-block">
+              <label>CPF / WhatsApp</label>
+              <span>{{ cand.adotante.cpf or '-' }} &bull; {{ cand.adotante.whatsapp or '-' }}</span>
+            </div>
+            <div class="info-block">
+              <label>E-mail de Contato</label>
+              <span>{{ cand.adotante.email }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Rodapé de Ações -->
+        <div style="display: flex; justify-content: flex-end; gap: 1rem; border-top: 1px solid var(--border-card); padding-top: 1.25rem; flex-wrap: wrap;">
+          {% if cand.status == 'Pendente' %}
+            <form action="{{ url_for('atualizar_status_candidatura', id=cand.id, acao='recusar') }}" method="POST">
+              <button type="submit" class="btn btn-outline" style="color: var(--status-red) !important; border-color: rgba(239, 68, 68, 0.3) !important;">
+                <i class="fa-solid fa-xmark"></i> Recusar Candidatura
+              </button>
+            </form>
+            <form action="{{ url_for('atualizar_status_candidatura', id=cand.id, acao='aprovar') }}" method="POST">
+              <button type="submit" class="btn btn-primary">
+                <i class="fa-solid fa-check"></i> Aprovar Adoção
+              </button>
+            </form>
+          {% elif cand.status == 'Aprovado' %}
+            <a href="{{ url_for('chat', candidatura_id=cand.id) }}" class="btn btn-primary" style="padding: 0.5rem 1rem; font-size: 0.85rem;">
+              <i class="fa-solid fa-comments"></i> Abrir Chat
+            </a>
+            {% if cand.adotante.whatsapp %}
+              <a href="https://wa.me/{{ cand.adotante.whatsapp }}?text=Ol%C3%A1%21+Vi+sua+candidatura+para+adotar+o+pet+{{ cand.animal.nome }}+no+PetMatch+e+foi+aprovada%21+Gostaria+de+combinar+os+detalhes." 
+                 target="_blank" class="btn btn-secondary" style="background-color: #25d366 !important; border-color: #25d366 !important; color: white !important;">
+                <i class="fa-brands fa-whatsapp"></i> WhatsApp
+              </a>
+            {% else %}
+              <span style="font-size: 0.9rem; color: var(--text-secondary); font-style: italic;">
+                Candidatura aprovada! Contate por e-mail: <strong>{{ cand.adotante.email }}</strong>
+              </span>
+            {% endif %}
+          {% else %}
+            <span style="font-size: 0.9rem; color: var(--status-red); font-style: italic;">
+              Esta candidatura foi recusada.
+            </span>
+          {% endif %}
+        </div>
+      </div>
+    {% endfor %}
+  {% else %}
+    <div style="text-align: center; padding: 4rem 1rem; background: var(--bg-card); border: 1px solid var(--border-card); border-radius: 16px;">
+      <i class="fa-solid fa-folder-open" style="font-size: 3rem; color: var(--text-secondary); opacity: 0.4; margin-bottom: 1rem;"></i>
+      <p style="font-size: 1.1rem; color: var(--text-secondary);">Sua instituição ainda não recebeu nenhuma candidatura de adoção.</p>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

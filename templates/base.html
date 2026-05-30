@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}PetMatch - Sistema de Adoção de Animais{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='images/favicon.svg') }}">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  {% block head %}{% endblock %}
+</head>
+<body>
+  <!-- Preloader (Tela de Carregamento) -->
+  <div id="preloader">
+    <div class="preloader-content">
+      <div class="preloader-logo-wrapper">
+        <svg class="preloader-logo" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="petmatch-gradient-preloader" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#00bfa5" />
+              <stop offset="100%" stop-color="#ff7043" />
+            </linearGradient>
+          </defs>
+          <ellipse cx="22" cy="38" rx="6" ry="9" transform="rotate(-30 22 38)" fill="url(#petmatch-gradient-preloader)" />
+          <ellipse cx="39" cy="24" rx="7" ry="11" transform="rotate(-10 39 24)" fill="url(#petmatch-gradient-preloader)" />
+          <ellipse cx="61" cy="24" rx="7" ry="11" transform="rotate(10 61 24)" fill="url(#petmatch-gradient-preloader)" />
+          <ellipse cx="78" cy="38" rx="6" ry="9" transform="rotate(30 78 38)" fill="url(#petmatch-gradient-preloader)" />
+          
+          <path d="M 50,88 C 42,80 24,65 24,51 C 24,41 32,34 41,34 C 47,34 50,38 50,38 C 50,38 53,34 59,34 C 68,34 76,41 76,51 C 76,65 58,80 50,88 Z" 
+                fill="none" stroke="url(#petmatch-gradient-preloader)" stroke-width="6" stroke-linejoin="round" stroke-linecap="round" />
+                
+          <path d="M 50,61 C 45,54 36,54 36,61 C 36,68 45,68 50,61 C 55,54 64,54 64,61 C 64,68 55,68 50,61 Z" 
+                fill="none" stroke="url(#petmatch-gradient-preloader)" stroke-width="6" stroke-linejoin="round" stroke-linecap="round" />
+        </svg>
+      </div>
+      <div class="preloader-text">Pet<span>Match</span></div>
+      <div class="preloader-spinner-bar"></div>
+    </div>
+  </div>
+
+  <!-- Modal de Alerta de Protótipo -->
+  <div id="prototype-warning-modal" class="prototype-overlay" aria-hidden="true" role="dialog" aria-labelledby="prototype-warning-title">
+    <div class="prototype-card">
+      <div class="prototype-header">
+        <div class="warning-icon-wrapper">
+          <i class="fa-solid fa-triangle-exclamation"></i>
+        </div>
+        <h2 id="prototype-warning-title">Aviso Importante</h2>
+      </div>
+      <div class="prototype-body">
+        <p><strong>Atenção:</strong> Este site é um <strong>protótipo acadêmico</strong> desenvolvido para fins didáticos.</p>
+        <p>Nenhuma informação, animal ou cadastro exibido ou realizado neste sistema é real.</p>
+        <p class="caution-text">
+          <i class="fa-solid fa-triangle-exclamation"></i> <strong>Aviso de Segurança:</strong> 
+          Por favor, <strong>NÃO coloque nenhuma informação real</strong> no sistema (como senhas de uso pessoal, CPFs ou números de telefone reais).
+        </p>
+      </div>
+      <div class="prototype-footer">
+        <button id="btn-close-warning" class="btn btn-primary">Entendi e Aceito</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Barra de Acessibilidade -->
+  <div class="accessibility-bar">
+    <div class="accessibility-container">
+      <div class="acc-links">
+        <button id="btn-contrast" title="Alternar Alto Contraste"><i class="fa-solid fa-circle-half-stroke"></i> Alto Contraste</button>
+        <button id="btn-theme" title="Alternar Tema Claro/Escuro"><i class="fa-solid fa-sun" id="theme-icon"></i> Tema Claro</button>
+        <button id="btn-font-increase" title="Aumentar Fonte"><i class="fa-solid fa-magnifying-glass-plus"></i> A+</button>
+        <button id="btn-font-decrease" title="Diminuir Fonte"><i class="fa-solid fa-magnifying-glass-minus"></i> A-</button>
+      </div>
+      <div class="acc-shortcuts">
+        <span><i class="fa-solid fa-keyboard"></i> Foco do teclado (Tab) destacado em vermelho</span>
+      </div>
+    </div>
+  </div>
+
+  <header>
+    <div class="nav-container">
+      <a href="{{ url_for('index') }}" class="logo">
+        <svg class="logo-svg" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="petmatch-gradient-header" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#00bfa5" />
+              <stop offset="100%" stop-color="#ff7043" />
+            </linearGradient>
+          </defs>
+          <ellipse cx="22" cy="38" rx="6" ry="9" transform="rotate(-30 22 38)" fill="url(#petmatch-gradient-header)" />
+          <ellipse cx="39" cy="24" rx="7" ry="11" transform="rotate(-10 39 24)" fill="url(#petmatch-gradient-header)" />
+          <ellipse cx="61" cy="24" rx="7" ry="11" transform="rotate(10 61 24)" fill="url(#petmatch-gradient-header)" />
+          <ellipse cx="78" cy="38" rx="6" ry="9" transform="rotate(30 78 38)" fill="url(#petmatch-gradient-header)" />
+          
+          <path d="M 50,88 C 42,80 24,65 24,51 C 24,41 32,34 41,34 C 47,34 50,38 50,38 C 50,38 53,34 59,34 C 68,34 76,41 76,51 C 76,65 58,80 50,88 Z" 
+                fill="none" stroke="url(#petmatch-gradient-header)" stroke-width="6" stroke-linejoin="round" stroke-linecap="round" />
+                
+          <path d="M 50,61 C 45,54 36,54 36,61 C 36,68 45,68 50,61 C 55,54 64,54 64,61 C 64,68 55,68 50,61 Z" 
+                fill="none" stroke="url(#petmatch-gradient-header)" stroke-width="6" stroke-linejoin="round" stroke-linecap="round" />
+        </svg> Pet<span>Match</span>
+      </a>
+      <button class="nav-toggle" id="nav-toggle" aria-label="Abrir Menu" aria-expanded="false">
+        <i class="fa-solid fa-bars"></i>
+      </button>
+      <ul class="nav-links" id="nav-menu">
+        <li><a href="{{ url_for('index') }}">Início</a></li>
+        <li><a href="{{ url_for('sobre') }}">Sobre Nós</a></li>
+        <li><a href="{{ url_for('contato') }}">Contato</a></li>
+        <li><a href="{{ url_for('catalogo') }}">Ver Animais</a></li>
+        {% if current_user.is_authenticated %}
+          {% if current_user.is_admin %}
+            <li><a href="{{ url_for('admin_dashboard') }}" style="color: var(--secondary); font-weight: bold;"><i class="fa-solid fa-lock"></i> Admin</a></li>
+          {% endif %}
+          <li><a href="{{ url_for('cadastrar_pet') }}">Cadastrar Pet</a></li>
+          {% if current_user.tipo in ['ONG', 'PROTETOR'] %}
+            <li><a href="{{ url_for('gerenciar_candidaturas') }}">Gerenciar Candidaturas</a></li>
+          {% else %}
+            <li><a href="{{ url_for('ver_favoritos') }}">Favoritos</a></li>
+            <li><a href="{{ url_for('minhas_candidaturas') }}">Minhas Candidaturas</a></li>
+          {% endif %}
+          <li><a href="{{ url_for('minhas_conversas') }}"><i class="fa-solid fa-comments" style="font-size: 0.85rem;"></i> Conversas</a></li>
+          <li><a href="{{ url_for('ver_perfil') }}" style="color: var(--text-primary); font-weight: 600;"><i class="fa-solid fa-circle-user"></i> {{ current_user.nome }}</a></li>
+          <li><a href="{{ url_for('logout') }}" class="btn btn-outline">Sair</a></li>
+        {% else %}
+          <li><a href="{{ url_for('login') }}" class="btn btn-outline">Entrar</a></li>
+          <li><a href="{{ url_for('registrar') }}" class="btn btn-primary">Registrar</a></li>
+        {% endif %}
+      </ul>
+    </div>
+  </header>
+
+  <main>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div style="margin-bottom: 2rem;">
+          {% for category, message in messages %}
+            <div class="btn btn-outline" style="width: 100%; text-align: left; padding: 1rem; border-color: var(--primary); margin-bottom: 0.5rem; background-color: rgba(16, 185, 129, 0.1);">
+              {{ message }}
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer>
+    <p>&copy; 2026 PetMatch - Projeto Extensionista. Desenvolvido para ONGs e Protetores de Animais - Unifaccamp (Equipe do 5º Semestre).</p>
+    <div style="margin-top: 1rem; font-size: 0.8rem; opacity: 0.85; line-height: 1.6;">
+      <strong>Integrantes:</strong>
+      <ul style="list-style: none; padding: 0; margin: 0.5rem 0 0 0; display: flex; flex-direction: column; align-items: center; gap: 0.3rem;">
+        <li>Rafaela Januario Silva (Project Manager & Documentação ABNT)</li>
+        <li>José Francisco Belarmino Bezerra (Analista de Requisitos)</li>
+        <li>Heverton Marques Oliveira (UX/UI Designer)</li>
+        <li>Nicolas Beltranelo De Lucas De França (Backend, DBA & Cronograma)</li>
+        <li>Raul Domingues Da Silva Honório (Desenvolvedor Frontend)</li>
+        <li>Davi Pereira Zorante (QA Tester)</li>
+        <li>Victor Augusto Da Silva Hollanda (Construção do Pitch)</li>
+      </ul>
+    </div>
+  </footer>
+
+  <!-- VLibras Widget para Acessibilidade em Libras -->
+  <div vw class="enabled">
+    <div vw-access-button class="active"></div>
+    <div vw-plugin-wrapper>
+      <div class="vw-plugin-top-wrapper"></div>
+    </div>
+  </div>
+  <script src="https://vlibras.gov.br/app/vlibras-plugin.js"></script>
+  <script>
+    new window.VLibras.Widget('https://vlibras.gov.br/app');
+  </script>
+
+  <!-- Script para Controle de Acessibilidade e Temas -->
+  <script>
+    const body = document.body;
+    const btnContrast = document.getElementById('btn-contrast');
+    const btnTheme = document.getElementById('btn-theme');
+    const themeIcon = document.getElementById('theme-icon');
+    const btnFontIncrease = document.getElementById('btn-font-increase');
+    const btnFontDecrease = document.getElementById('btn-font-decrease');
+
+    // 1. Controle do Tema Claro / Escuro
+    function applyTheme(theme) {
+      if (theme === 'light') {
+        body.classList.add('light-theme');
+        btnTheme.innerHTML = '<i class="fa-solid fa-moon" id="theme-icon"></i> Tema Escuro';
+      } else {
+        body.classList.remove('light-theme');
+        btnTheme.innerHTML = '<i class="fa-solid fa-sun" id="theme-icon"></i> Tema Claro';
+      }
+    }
+
+    const savedTheme = localStorage.getItem('theme') || 'dark';
+    applyTheme(savedTheme);
+
+    btnTheme.addEventListener('click', () => {
+      const currentTheme = body.classList.contains('light-theme') ? 'light' : 'dark';
+      const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+      localStorage.setItem('theme', newTheme);
+      applyTheme(newTheme);
+    });
+
+    // 2. Controle do Alto Contraste
+    function applyContrast(contrast) {
+      if (contrast === 'enabled') {
+        body.classList.add('high-contrast');
+      } else {
+        body.classList.remove('high-contrast');
+      }
+    }
+
+    const savedContrast = localStorage.getItem('highContrast') || 'disabled';
+    applyContrast(savedContrast);
+
+    btnContrast.addEventListener('click', () => {
+      const isContrast = body.classList.contains('high-contrast');
+      const newContrast = isContrast ? 'disabled' : 'enabled';
+      localStorage.setItem('highContrast', newContrast);
+      applyContrast(newContrast);
+    });
+
+    // 3. Controle do Tamanho da Fonte (Acessibilidade)
+    let fontScale = parseFloat(localStorage.getItem('fontScale')) || 1.0;
+    
+    function applyFontScale() {
+      document.documentElement.style.fontSize = `${fontScale * 100}%`;
+    }
+    
+    applyFontScale();
+
+    btnFontIncrease.addEventListener('click', () => {
+      if (fontScale < 1.4) {
+        fontScale += 0.1;
+        localStorage.setItem('fontScale', fontScale);
+        applyFontScale();
+      }
+    });
+
+    btnFontDecrease.addEventListener('click', () => {
+      if (fontScale > 0.8) {
+        fontScale -= 0.1;
+        localStorage.setItem('fontScale', fontScale);
+        applyFontScale();
+      }
+    });
+
+    // 4. Modal de Alerta de Protótipo (sessionStorage para exibir 1 vez por sessão de navegação)
+    const prototypeModal = document.getElementById('prototype-warning-modal');
+    const btnCloseWarning = document.getElementById('btn-close-warning');
+
+    if (prototypeModal && btnCloseWarning) {
+      if (!sessionStorage.getItem('prototype_warning_accepted')) {
+        setTimeout(() => {
+          prototypeModal.classList.add('active');
+          prototypeModal.setAttribute('aria-hidden', 'false');
+          btnCloseWarning.focus();
+        }, 300);
+      }
+
+      btnCloseWarning.addEventListener('click', () => {
+        prototypeModal.classList.remove('active');
+        prototypeModal.setAttribute('aria-hidden', 'true');
+        sessionStorage.setItem('prototype_warning_accepted', 'true');
+      });
+
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && prototypeModal.classList.contains('active')) {
+          btnCloseWarning.click();
+        }
+      });
+    }
+
+    // 5. Controle do Menu Mobile (Hamburger)
+    const navToggle = document.getElementById('nav-toggle');
+    const navMenu = document.getElementById('nav-menu');
+    if (navToggle && navMenu) {
+      navToggle.addEventListener('click', () => {
+        const isExpanded = navToggle.getAttribute('aria-expanded') === 'true';
+        navToggle.setAttribute('aria-expanded', !isExpanded);
+        navMenu.classList.toggle('active');
+        const icon = navToggle.querySelector('i');
+        if (icon) {
+          if (navMenu.classList.contains('active')) {
+            icon.className = 'fa-solid fa-xmark';
+          } else {
+            icon.className = 'fa-solid fa-bars';
+          }
+        }
+      });
+
+      const navLinks = navMenu.querySelectorAll('a');
+      navLinks.forEach(link => {
+        link.addEventListener('click', () => {
+          navMenu.classList.remove('active');
+          navToggle.setAttribute('aria-expanded', 'false');
+          const icon = navToggle.querySelector('i');
+          if (icon) icon.className = 'fa-solid fa-bars';
+        });
+      });
+    }
+
+    // 6. Controle da Tela de Carregamento (Preloader) com tempo mínimo de 2 segundos
+    let pageLoaded = false;
+    let minTimeElapsed = false;
+
+    function hidePreloader() {
+      if (pageLoaded && minTimeElapsed) {
+        const preloader = document.getElementById('preloader');
+        if (preloader && !preloader.classList.contains('loaded')) {
+          preloader.classList.add('loaded');
+        }
+      }
+    }
+
+    window.addEventListener('load', () => {
+      pageLoaded = true;
+      hidePreloader();
+    });
+
+    // Garante um tempo mínimo de 1 segundo para visualização da animação
+    setTimeout(() => {
+      minTimeElapsed = true;
+      hidePreloader();
+    }, 1000);
+  </script>
+</body>
+</html>

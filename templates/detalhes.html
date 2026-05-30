@@ -1,0 +1,433 @@
+{% extends "base.html" %}
+
+{% block title %}Adotar {{ pet.nome }} - PetMatch{% endblock %}
+
+{% block head %}
+<style>
+  .details-container {
+    display: grid;
+    grid-template-columns: 400px 1fr;
+    gap: 3rem;
+    margin-top: 2rem;
+  }
+  @media (max-width: 900px) {
+    .details-container {
+      grid-template-columns: 1fr;
+      gap: 2rem;
+    }
+  }
+  .details-left {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+  .pet-image-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-card);
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: var(--shadow-premium);
+    position: relative;
+  }
+  .pet-image-card img {
+    width: 100%;
+    height: 400px;
+    object-fit: cover;
+    display: block;
+  }
+  .pet-badge-large {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    padding: 0.4rem 1rem;
+    border-radius: 30px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    backdrop-filter: blur(10px);
+  }
+  
+  .details-right {
+    background: var(--bg-card);
+    border: 1px solid var(--border-card);
+    border-radius: 16px;
+    padding: 2.5rem;
+    box-shadow: var(--shadow-premium);
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+  }
+
+  .pet-title-section {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--border-card);
+    padding-bottom: 1.5rem;
+  }
+
+  .pet-name-title {
+    font-size: 2.5rem;
+    font-weight: 800;
+  }
+
+  .tag-pill {
+    font-size: 0.8rem;
+    padding: 0.25rem 0.75rem;
+    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--text-secondary);
+    border: 1px solid var(--border-card);
+    font-weight: 500;
+  }
+
+  .pet-info-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+  }
+
+  .info-box {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid var(--border-card);
+    border-radius: 10px;
+    padding: 1rem;
+    text-align: center;
+  }
+
+  .info-box span.label {
+    display: block;
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+  }
+
+  .info-box span.value {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--text-primary);
+  }
+
+  .section-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--text-primary);
+  }
+
+  .vaccine-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 0.5rem;
+  }
+
+  .vaccine-table th, .vaccine-table td {
+    padding: 0.75rem 1rem;
+    text-align: left;
+    border-bottom: 1px solid var(--border-card);
+  }
+
+  .vaccine-table th {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    font-weight: 600;
+  }
+
+  .vaccine-table td {
+    font-size: 0.95rem;
+  }
+
+  .status-indicator {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+  }
+
+  .dot-green { background-color: var(--status-green); }
+  .dot-yellow { background-color: var(--status-yellow); }
+  .dot-red { background-color: var(--status-red); }
+
+  .ong-card {
+    background: rgba(99, 102, 241, 0.05);
+    border: 1px solid rgba(99, 102, 241, 0.15);
+    border-radius: 12px;
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .vaccine-form-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr;
+    gap: 1rem;
+  }
+
+  @media (max-width: 600px) {
+    .vaccine-form-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .breadcrumbs {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    margin-bottom: 1.5rem;
+  }
+
+  .breadcrumbs a {
+    color: var(--text-secondary);
+    text-decoration: none;
+    transition: var(--transition);
+  }
+
+  .breadcrumbs a:hover {
+    color: var(--text-primary);
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="breadcrumbs">
+  <a href="{{ url_for('index') }}">Início</a>
+  <i class="fa-solid fa-chevron-right" style="font-size: 0.75rem;"></i>
+  <a href="{{ url_for('catalogo') }}">Catálogo de Animais</a>
+  <i class="fa-solid fa-chevron-right" style="font-size: 0.75rem;"></i>
+  <span>{{ pet.nome }}</span>
+</div>
+
+<div class="details-container">
+  
+  <!-- Coluna Esquerda: Imagem e Ações Rápidas -->
+  <div class="details-left">
+    <div class="pet-image-card">
+      {% if pet.foto_url %}
+        <img src="{{ url_for('static', filename='uploads/' + pet.foto_url) }}" alt="Foto de {{ pet.nome }}">
+      {% else %}
+        <div style="height: 400px; background: #1e293b; display: flex; align-items: center; justify-content: center;">
+          <i class="fa-solid fa-paw" style="font-size: 6rem; color: var(--text-secondary); opacity: 0.3;"></i>
+        </div>
+      {% endif %}
+      
+      {% if pet.status == 'Disponivel' %}
+        <span class="pet-badge-large status-disponivel">Disponível</span>
+      {% else %}
+        <span class="pet-badge-large status-negociacao">Em Negociação</span>
+      {% endif %}
+    </div>
+
+    <!-- Botões de Ação -->
+    <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+      {% if pet.status == 'Disponivel' %}
+        {% if ja_candidatado %}
+          <button class="btn btn-outline" style="width: 100%; cursor: not-allowed; opacity: 0.8;" disabled>
+            <i class="fa-solid fa-circle-check" style="color: var(--status-green);"></i> Candidatura Enviada
+          </button>
+        {% else %}
+          <form action="{{ url_for('candidatar_animal', id=pet.id) }}" method="POST" style="width: 100%;">
+            <button type="submit" class="btn btn-primary" style="width: 100%; padding: 0.8rem;">
+              <i class="fa-solid fa-heart"></i> Quero Adotar
+            </button>
+          </form>
+        {% endif %}
+      {% endif %}
+
+      <form action="{{ url_for('favoritar_animal', id=pet.id) }}" method="POST" style="width: 100%;">
+        <button type="submit" class="btn btn-outline" style="width: 100%; padding: 0.8rem;">
+          {% if ja_favorito %}
+            <i class="fa-solid fa-star" style="color: #f59e0b;"></i> Remover dos Favoritos
+          {% else %}
+            <i class="fa-regular fa-star"></i> Favoritar Animal
+          {% endif %}
+        </button>
+      </form>
+
+      {% if pet.ong.whatsapp %}
+        <a href="https://wa.me/{{ pet.ong.whatsapp }}?text=Ol%C3%A1%21+Tenho+interesse+em+saber+mais+sobre+o+pet+{{ pet.nome }}+que+vi+no+PetMatch." 
+           target="_blank" class="btn btn-secondary" style="width: 100%; padding: 0.8rem; background-color: #25d366 !important; border-color: #25d366 !important; color: white !important;">
+          <i class="fa-brands fa-whatsapp"></i> Conversar com a ONG
+        </a>
+      {% endif %}
+
+      {% if current_user.is_authenticated and (current_user.is_admin or current_user.id == pet.ong_id) %}
+        <form action="{{ url_for('deletar_animal', id=pet.id) }}" method="POST" style="width: 100%;" onsubmit="return confirm('Tem certeza que deseja remover esta publicação permanentemente?');">
+          <button type="submit" class="btn btn-outline" style="width: 100%; padding: 0.8rem; color: var(--status-red) !important; border-color: var(--status-red) !important; background: transparent !important;">
+            <i class="fa-solid fa-trash-can"></i> Remover Publicação
+          </button>
+        </form>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Coluna Direita: Informações Detalhadas -->
+  <div class="details-right">
+    
+    <!-- Cabeçalho do Pet -->
+    <div class="pet-title-section">
+      <div>
+        <div style="display: flex; align-items: center; gap: 1rem;">
+          <h1 class="pet-name-title" style="margin: 0;">{{ pet.nome }}</h1>
+          {% if pet.sexo == 'Macho' %}
+            <i class="fa-solid fa-mars sex-macho" style="font-size: 1.8rem;" title="Macho"></i>
+          {% else %}
+            <i class="fa-solid fa-venus sex-femea" style="font-size: 1.8rem;" title="Fêmea"></i>
+          {% endif %}
+        </div>
+        <p style="color: var(--text-secondary); font-size: 1.1rem; margin-top: 0.25rem;">
+          Cadastrado em {{ pet.data_cadastro.strftime('%d/%m/%Y') }}
+        </p>
+      </div>
+    </div>
+
+    <!-- Grid de Informações Básicas -->
+    <div class="pet-info-grid">
+      <div class="info-box">
+        <span class="label">Espécie</span>
+        <span class="value">{{ pet.especie }}</span>
+      </div>
+      <div class="info-box">
+        <span class="label">Porte</span>
+        <span class="value">{{ pet.porte }}</span>
+      </div>
+      <div class="info-box">
+        <span class="label">Sexo</span>
+        <span class="value">{{ pet.sexo }}</span>
+      </div>
+    </div>
+
+    <!-- Tags de Personalidade -->
+    {% if pet.tags %}
+      <div>
+        <div class="section-title"><i class="fa-solid fa-tags" style="color: var(--primary);"></i> Personalidade</div>
+        <div class="pet-tags">
+          {% for t in pet.tags %}
+            <span class="tag-pill">{{ t }}</span>
+          {% endfor %}
+        </div>
+      </div>
+    {% endif %}
+
+    <!-- Biografia do Pet (Gerada Dinamicamente) -->
+    <div>
+      <div class="section-title"><i class="fa-solid fa-circle-info" style="color: var(--primary);"></i> Sobre mim</div>
+      <p style="line-height: 1.6; font-size: 1.1rem; color: var(--text-primary);">
+        Olá! Eu sou o <strong>{{ pet.nome }}</strong>, um lindo {{ pet.especie | lower }} de porte {{ pet.porte | lower }}. 
+        {% if pet.tags %}
+          Meus protetores me descrevem como um pet muito 
+          {% for t in pet.tags %}
+            {% if loop.last and not loop.first %} e {% elif not loop.first %}, {% endif %}<strong>{{ t | lower }}</strong>
+          {% endfor %}.
+        {% endif %}
+        Atualmente meu status é <em>"{{ pet.status }}"</em>. Estou sob a proteção da ONG/Protetor e adoraria ter a chance de fazer parte da sua família! Se você procura um companheiro fiel, vamos dar um match!
+      </p>
+    </div>
+
+    <!-- Tabela de Vacinação -->
+    <div>
+      <div class="section-title"><i class="fa-solid fa-briefcase-medical" style="color: var(--primary);"></i> Prontuário de Vacinação</div>
+      {% if pet.vacinas %}
+        <div style="overflow-x: auto;">
+          <table class="vaccine-table">
+            <thead>
+              <tr>
+                <th>Vacina</th>
+                <th>Data da Aplicação</th>
+                <th>Próxima Dose</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for vacina in pet.vacinas %}
+                <tr>
+                  <td><strong>{{ vacina.nome_vacina }}</strong></td>
+                  <td>{{ vacina.data_aplicacao.strftime('%d/%m/%Y') }}</td>
+                  <td>
+                    {% if vacina.data_proxima_dose %}
+                      {{ vacina.data_proxima_dose.strftime('%d/%m/%Y') }}
+                    {% else %}
+                      Dose única / Não requer
+                    {% endif %}
+                  </td>
+                  <td>
+                    {% if vacina.status_vacina == 'verde' %}
+                      <span class="status-indicator"><span class="semaphore-dot dot-green"></span> Em dia</span>
+                    {% elif vacina.status_vacina == 'amarelo' %}
+                      <span class="status-indicator"><span class="semaphore-dot dot-yellow"></span> Vence em breve</span>
+                    {% else %}
+                      <span class="status-indicator"><span class="semaphore-dot dot-red"></span> Atrasada</span>
+                    {% endif %}
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      {% else %}
+        <div style="background: rgba(255, 255, 255, 0.02); border: 1px solid var(--border-card); border-radius: 8px; padding: 1.5rem; text-align: center; color: var(--text-secondary);">
+          <i class="fa-solid fa-circle-exclamation" style="font-size: 1.5rem; margin-bottom: 0.5rem; opacity: 0.6;"></i>
+          <p>Nenhuma vacina cadastrada até o momento para este animal.</p>
+        </div>
+      {% endif %}
+
+      <!-- Form para Adicionar Vacina (se for a ONG dona do pet) -->
+      {% if current_user.is_authenticated and current_user.id == pet.ong_id %}
+        <div style="margin-top: 1.5rem; padding: 1.5rem; background: rgba(255, 255, 255, 0.02); border: 1px solid var(--border-card); border-radius: 12px;">
+          <div style="font-weight: 700; margin-bottom: 1rem; color: var(--text-primary); font-size: 1.05rem;">
+            <i class="fa-solid fa-plus-circle" style="color: var(--primary);"></i> Adicionar Vacina ao Prontuário
+          </div>
+          <form action="{{ url_for('adicionar_vacina', id=pet.id) }}" method="POST" style="display: flex; flex-direction: column; gap: 1rem;">
+            <div class="vaccine-form-grid">
+              <div style="display: flex; flex-direction: column; gap: 0.25rem;">
+                <label for="nome_vacina" style="font-size: 0.8rem; color: var(--text-secondary); font-weight: 600;">Nome da Vacina</label>
+                <input type="text" id="nome_vacina" name="nome_vacina" placeholder="Ex: Antirrábica, V8, V10" required 
+                       style="background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border-card); padding: 0.5rem 0.8rem; border-radius: 6px; color: var(--text-primary); font-family: var(--font-main);">
+              </div>
+              <div style="display: flex; flex-direction: column; gap: 0.25rem;">
+                <label for="data_aplicacao" style="font-size: 0.8rem; color: var(--text-secondary); font-weight: 600;">Data de Aplicação</label>
+                <input type="date" id="data_aplicacao" name="data_aplicacao" required 
+                       style="background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border-card); padding: 0.5rem 0.8rem; border-radius: 6px; color: var(--text-primary); font-family: var(--font-main);">
+              </div>
+              <div style="display: flex; flex-direction: column; gap: 0.25rem;">
+                <label for="data_proxima_dose" style="font-size: 0.8rem; color: var(--text-secondary); font-weight: 600;">Próxima Dose (Opcional)</label>
+                <input type="date" id="data_proxima_dose" name="data_proxima_dose" 
+                       style="background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border-card); padding: 0.5rem 0.8rem; border-radius: 6px; color: var(--text-primary); font-family: var(--font-main);">
+              </div>
+            </div>
+            <button type="submit" class="btn btn-primary" style="padding: 0.5rem 1rem; font-size: 0.9rem; align-self: flex-end; height: 38px;">
+              <i class="fa-solid fa-plus"></i> Registrar Vacina
+            </button>
+          </form>
+        </div>
+      {% endif %}
+    </div>
+
+    <!-- Card da ONG Responsável -->
+    <div class="ong-card">
+      <div style="font-weight: 700; font-size: 1.1rem; color: var(--text-primary); display: flex; align-items: center; gap: 0.5rem;">
+        <i class="fa-solid fa-house-chimney-window" style="color: var(--secondary);"></i> Responsável pelo resgate
+      </div>
+      <div>
+        <div style="font-size: 1.1rem; font-weight: 600; color: var(--text-primary);">{{ pet.ong.nome }}</div>
+        <div style="font-size: 0.9rem; color: var(--text-secondary); margin-top: 0.25rem;">
+          <i class="fa-regular fa-envelope"></i> {{ pet.ong.email }}
+          {% if pet.ong.whatsapp %}
+            &nbsp;&bull;&nbsp; <i class="fa-solid fa-phone"></i> WhatsApp: {{ pet.ong.whatsapp }}
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+{% endblock %}

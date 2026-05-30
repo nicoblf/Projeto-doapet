@@ -1,0 +1,142 @@
+{% extends "base.html" %}
+
+{% block title %}Registrar - PetMatch{% endblock %}
+
+{% block head %}
+<style>
+  .form-group {
+    margin-bottom: 1.2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+  .form-group label {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    font-weight: 500;
+  }
+  .form-group input, .form-group select {
+    background: rgba(15, 23, 42, 0.6);
+    border: 1px solid var(--border-card);
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    color: var(--text-primary);
+    font-family: var(--font-main);
+    font-size: 0.95rem;
+    transition: var(--transition);
+  }
+  .form-group input:focus, .form-group select:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15);
+  }
+  .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+  @media (max-width: 600px) {
+    .form-row {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div style="max-width: 600px; margin: 2rem auto; padding: 2.5rem; background: var(--bg-card); border: 1px solid var(--border-card); border-radius: 16px; backdrop-filter: blur(10px); box-shadow: var(--shadow-premium);">
+  
+  <h2 style="font-size: 2rem; margin-bottom: 0.5rem; font-weight: 700; text-align: center;">Crie sua conta no <span style="color: var(--primary);">PetMatch</span></h2>
+  <p style="color: var(--text-secondary); text-align: center; margin-bottom: 1.5rem; font-size: 0.95rem;">Cadastre-se para adotar animais ou divulgar pets para adoção.</p>
+
+  <div class="form-warning-alert">
+    <i class="fa-solid fa-triangle-exclamation"></i>
+    <div>
+      <strong>Aviso de Protótipo:</strong> Este site é apenas um protótipo acadêmico. Por favor, <strong>NÃO insira seus dados reais</strong> (como senhas pessoais, CPFs reais ou números de telefone).
+    </div>
+  </div>
+
+  <form action="{{ url_for('registrar') }}" method="POST">
+    
+    <div class="form-group">
+      <label for="nome">Nome Completo / Nome da ONG</label>
+      <input type="text" id="nome" name="nome" placeholder="Digite seu nome completo" required>
+    </div>
+
+    <div class="form-group">
+      <label for="email">E-mail (Será seu login)</label>
+      <input type="email" id="email" name="email" placeholder="exemplo@email.com" required>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="cpf">CPF (Apenas números)</label>
+        <input type="text" id="cpf" name="cpf" placeholder="000.000.000-00" required>
+      </div>
+
+      <div class="form-group">
+        <label for="whatsapp">WhatsApp / Celular</label>
+        <input type="text" id="whatsapp" name="whatsapp" placeholder="(00) 90000-0000" required>
+      </div>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="data_nascimento">Data de Nascimento</label>
+        <input type="date" id="data_nascimento" name="data_nascimento" required>
+      </div>
+
+      <div class="form-group">
+        <label for="tipo">Tipo de Perfil</label>
+        <select id="tipo" name="tipo" required>
+          <option value="ADOTANTE">Quero Adotar (Adotante)</option>
+          <option value="ONG">Sou ONG / Protetor Independente</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="senha">Senha</label>
+      <input type="password" id="senha" name="senha" placeholder="Crie uma senha segura" required>
+    </div>
+
+    <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1rem; height: 46px;">
+      <i class="fa-solid fa-user-plus"></i> Concluir Cadastro
+    </button>
+  </form>
+
+  <div style="margin-top: 1.5rem; text-align: center; font-size: 0.9rem; color: var(--text-secondary);">
+    Já possui uma conta? <a href="{{ url_for('login') }}" style="color: var(--secondary); text-decoration: none; font-weight: 600;">Faça Login</a>
+  </div>
+</div>
+
+<script>
+  // Máscaras Simples para CPF e Celular
+  const cpfInput = document.getElementById('cpf');
+  const whatsappInput = document.getElementById('whatsapp');
+
+  cpfInput.addEventListener('input', (e) => {
+    let value = e.target.value.replace(/\D/g, "");
+    if (value.length > 11) value = value.slice(0, 11);
+    value = value.replace(/(\d{3})(\d)/, "$1.$2");
+    value = value.replace(/(\d{3})(\d)/, "$1.$2");
+    value = value.replace(/(\d{3})(\d{1,2})$/, "$1-$2");
+    e.target.value = value;
+  });
+
+  whatsappInput.addEventListener('input', (e) => {
+    let value = e.target.value.replace(/\D/g, "");
+    if (value.length > 11) value = value.slice(0, 11);
+    if (value.length > 10) {
+      value = value.replace(/^(\d{2})(\d{5})(\d{4})$/, "($1) $2-$3");
+    } else if (value.length > 5) {
+      value = value.replace(/^(\d{2})(\d{4})(\d{0,4})$/, "($1) $2-$3");
+    } else if (value.length > 2) {
+      value = value.replace(/^(\d{2})(\d{0,5})$/, "($1) $2");
+    } else {
+      value = value.replace(/^(\d*)$/, "($1");
+    }
+    e.target.value = value;
+  });
+</script>
+{% endblock %}

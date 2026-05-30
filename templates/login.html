@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+
+{% block title %}Entrar - PetMatch{% endblock %}
+
+{% block head %}
+<style>
+  .form-group {
+    margin-bottom: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  .form-group label {
+    font-size: 0.95rem;
+    color: var(--text-secondary);
+    font-weight: 500;
+  }
+  .form-group input {
+    background: rgba(15, 23, 42, 0.6);
+    border: 1px solid var(--border-card);
+    padding: 0.8rem 1rem;
+    border-radius: 8px;
+    color: var(--text-primary);
+    font-family: var(--font-main);
+    font-size: 1rem;
+    transition: var(--transition);
+  }
+  .form-group input:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15);
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div style="max-width: 450px; margin: 4rem auto; padding: 2.5rem; background: var(--bg-card); border: 1px solid var(--border-card); border-radius: 16px; backdrop-filter: blur(10px); box-shadow: var(--shadow-premium);">
+  
+  <h2 style="font-size: 2rem; margin-bottom: 0.5rem; font-weight: 700; text-align: center;">Bem-vindo de volta</h2>
+  <p style="color: var(--text-secondary); text-align: center; margin-bottom: 1.5rem; font-size: 0.95rem;">Insira suas credenciais para entrar no sistema.</p>
+
+  <div class="form-warning-alert">
+    <i class="fa-solid fa-triangle-exclamation"></i>
+    <div>
+      <strong>Aviso de Protótipo:</strong> Este site é apenas um protótipo acadêmico. Por favor, <strong>NÃO utilize dados reais</strong> (como suas senhas reais de uso pessoal).
+    </div>
+  </div>
+
+  <form action="{{ url_for('login') }}" method="POST">
+    
+    <div class="form-group">
+      <label for="email">E-mail</label>
+      <input type="email" id="email" name="email" placeholder="nome@exemplo.com" required autocomplete="username">
+    </div>
+
+    <div class="form-group">
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <label for="senha">Senha</label>
+        <!-- <a href="#" style="color: var(--primary); text-decoration: none; font-size: 0.85rem; font-weight: 600;">Esqueceu a senha?</a> -->
+      </div>
+      <input type="password" id="senha" name="senha" placeholder="Digite sua senha" required autocomplete="current-password">
+    </div>
+
+    <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 1rem; height: 46px;">
+      <i class="fa-solid fa-right-to-bracket"></i> Entrar
+    </button>
+  </form>
+
+  <div style="margin-top: 2rem; text-align: center; font-size: 0.9rem; color: var(--text-secondary);">
+    Ainda não tem uma conta? <a href="{{ url_for('registrar') }}" style="color: var(--secondary); text-decoration: none; font-weight: 600;">Cadastre-se</a>
+  </div>
+</div>
+{% endblock %}

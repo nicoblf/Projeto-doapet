@@ -1,0 +1,18 @@
+<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="petmatch-gradient-fav" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#00bfa5" />
+      <stop offset="100%" stop-color="#ff7043" />
+    </linearGradient>
+  </defs>
+  <ellipse cx="22" cy="38" rx="6" ry="9" transform="rotate(-30 22 38)" fill="url(#petmatch-gradient-fav)" />
+  <ellipse cx="39" cy="24" rx="7" ry="11" transform="rotate(-10 39 24)" fill="url(#petmatch-gradient-fav)" />
+  <ellipse cx="61" cy="24" rx="7" ry="11" transform="rotate(10 61 24)" fill="url(#petmatch-gradient-fav)" />
+  <ellipse cx="78" cy="38" rx="6" ry="9" transform="rotate(30 78 38)" fill="url(#petmatch-gradient-fav)" />
+  
+  <path d="M 50,88 C 42,80 24,65 24,51 C 24,41 32,34 41,34 C 47,34 50,38 50,38 C 50,38 53,34 59,34 C 68,34 76,41 76,51 C 76,65 58,80 50,88 Z" 
+        fill="none" stroke="url(#petmatch-gradient-fav)" stroke-width="6" stroke-linejoin="round" stroke-linecap="round" />
+        
+  <path d="M 50,61 C 45,54 36,54 36,61 C 36,68 45,68 50,61 C 55,54 64,54 64,61 C 64,68 55,68 50,61 Z" 
+        fill="none" stroke="url(#petmatch-gradient-fav)" stroke-width="6" stroke-linejoin="round" stroke-linecap="round" />
+</svg>

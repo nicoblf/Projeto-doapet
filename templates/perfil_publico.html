@@ -1,0 +1,272 @@
+{% extends "base.html" %}
+
+{% block title %}Perfil de {{ usuario.nome }} - PetMatch{% endblock %}
+
+{% block head %}
+<style>
+  .profile-container {
+    max-width: 800px;
+    margin: 2rem auto;
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+  }
+  .profile-header-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-card);
+    border-radius: 16px;
+    padding: 2.5rem;
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+    box-shadow: var(--shadow-premium);
+    backdrop-filter: blur(10px);
+  }
+  .profile-avatar {
+    width: 90px;
+    height: 90px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--bg-app);
+    font-size: 2.5rem;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+  body.high-contrast .profile-avatar {
+    background: #ffff00 !important;
+    color: #000000 !important;
+    border: 2px solid #ffff00;
+  }
+  .profile-title-section {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+  }
+  .profile-badge {
+    align-self: flex-start;
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    background: rgba(99, 102, 241, 0.1);
+    color: var(--secondary);
+    border: 1px solid rgba(99, 102, 241, 0.2);
+  }
+  body.high-contrast .profile-badge {
+    background: #000000 !important;
+    color: #ffff00 !important;
+    border: 2px solid #ffff00 !important;
+  }
+  .stats-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+  }
+  .stat-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-card);
+    border-radius: 16px;
+    padding: 2rem;
+    text-align: center;
+    box-shadow: var(--shadow-premium);
+    backdrop-filter: blur(10px);
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  .stat-card .value {
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: var(--primary);
+  }
+  .stat-card .label {
+    color: var(--text-secondary);
+    font-weight: 500;
+  }
+  .profile-details-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+  }
+  @media (max-width: 600px) {
+    .profile-header-card {
+      flex-direction: column;
+      text-align: center;
+      padding: 2rem;
+    }
+    .profile-badge {
+      align-self: center;
+    }
+    .profile-details-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+  .detail-item {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid var(--border-card);
+    border-radius: 12px;
+    padding: 1.25rem;
+  }
+  .detail-item label {
+    display: block;
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    font-weight: 600;
+    margin-bottom: 0.3rem;
+    letter-spacing: 0.5px;
+  }
+  .detail-item span {
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+  /* Grid de Pets */
+  .pets-public-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 1.25rem;
+  }
+  .pet-public-card {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid var(--border-card);
+    border-radius: 12px;
+    overflow: hidden;
+    transition: var(--transition);
+    text-decoration: none;
+    color: inherit;
+  }
+  .pet-public-card:hover {
+    transform: translateY(-4px);
+    border-color: rgba(99, 102, 241, 0.3);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+  }
+  .pet-public-img {
+    width: 100%;
+    height: 140px;
+    overflow: hidden;
+    position: relative;
+  }
+  .pet-public-img img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .pet-public-info {
+    padding: 0.85rem;
+  }
+  .pet-public-info h3 {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0 0 0.25rem 0;
+  }
+  .pet-public-info p {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    margin: 0;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="profile-container">
+  <div class="breadcrumbs" style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.9rem; color: var(--text-secondary);">
+    <a href="{{ url_for('index') }}" style="color: var(--text-secondary); text-decoration: none;">Início</a>
+    <i class="fa-solid fa-chevron-right" style="font-size: 0.75rem;"></i>
+    <span>Perfil de {{ usuario.nome }}</span>
+  </div>
+
+  <!-- Header -->
+  <div class="profile-header-card">
+    <div class="profile-avatar">
+      {{ usuario.nome[0] | upper }}
+    </div>
+    <div class="profile-title-section">
+      <span class="profile-badge">
+        {% if usuario.tipo == 'ONG' %}
+          ONG / Instituição
+        {% elif usuario.tipo == 'PROTETOR' %}
+          Protetor Independente
+        {% else %}
+          Adotante
+        {% endif %}
+      </span>
+      <h1 style="font-size: 2rem; font-weight: 800; color: var(--text-primary); margin: 0.3rem 0 0 0;">{{ usuario.nome }}</h1>
+    </div>
+  </div>
+
+  <!-- Estatísticas -->
+  <div class="stats-row">
+    {% if usuario.tipo in ['ONG', 'PROTETOR'] %}
+      <div class="stat-card">
+        <span class="value">{{ stats.total_pets }}</span>
+        <span class="label">Pets Cadastrados</span>
+      </div>
+    {% else %}
+      <div class="stat-card">
+        <span class="value">{{ stats.total_solicitacoes }}</span>
+        <span class="label">Candidaturas Enviadas</span>
+      </div>
+    {% endif %}
+  </div>
+
+  <!-- Informações Públicas -->
+  <div class="profile-header-card" style="flex-direction: column; align-items: stretch; gap: 1.5rem;">
+    <h2 style="font-size: 1.4rem; font-weight: 700; border-bottom: 1px solid var(--border-card); padding-bottom: 0.8rem; margin: 0;">
+      <i class="fa-solid fa-id-card" style="color: var(--primary);"></i> Informações de Contato
+    </h2>
+    <div class="profile-details-grid">
+      <div class="detail-item">
+        <label>Nome</label>
+        <span>{{ usuario.nome }}</span>
+      </div>
+      <div class="detail-item">
+        <label>E-mail</label>
+        <span>{{ usuario.email }}</span>
+      </div>
+      {% if usuario.whatsapp %}
+      <div class="detail-item">
+        <label>WhatsApp / Celular</label>
+        <span>{{ usuario.whatsapp }}</span>
+      </div>
+      {% endif %}
+      <div class="detail-item">
+        <label>Tipo de Perfil</label>
+        <span>{{ usuario.tipo }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Pets do Usuário (se ONG/Protetor) -->
+  {% if usuario.tipo in ['ONG', 'PROTETOR'] and pets_usuario %}
+    <div class="profile-header-card" style="flex-direction: column; align-items: stretch; gap: 1.5rem;">
+      <h2 style="font-size: 1.4rem; font-weight: 700; border-bottom: 1px solid var(--border-card); padding-bottom: 0.8rem; margin: 0;">
+        <i class="fa-solid fa-paw" style="color: var(--primary);"></i> Animais Cadastrados
+      </h2>
+      <div class="pets-public-grid">
+        {% for pet in pets_usuario %}
+          <a href="{{ url_for('detalhes_animal', id=pet.id) }}" class="pet-public-card">
+            <div class="pet-public-img">
+              {% if pet.foto_url %}
+                <img src="{{ url_for('static', filename='uploads/' + pet.foto_url) }}" alt="{{ pet.nome }}">
+              {% else %}
+                <div style="height: 100%; display: flex; align-items: center; justify-content: center; background: #1e293b;">
+                  <i class="fa-solid fa-paw" style="font-size: 2rem; color: var(--text-secondary); opacity: 0.3;"></i>
+                </div>
+              {% endif %}
+            </div>
+            <div class="pet-public-info">
+              <h3>{{ pet.nome }}</h3>
+              <p>{{ pet.especie }} • {{ pet.porte }}</p>
+            </div>
+          </a>
+        {% endfor %}
+      </div>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

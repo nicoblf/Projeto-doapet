@@ -1,0 +1,182 @@
+{% extends "base.html" %}
+
+{% block title %}Minhas Candidaturas - PetMatch{% endblock %}
+
+{% block head %}
+<style>
+  .candidaturas-container {
+    max-width: 900px;
+    margin: 2rem auto;
+  }
+  .candidatura-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-card);
+    border-radius: 16px;
+    padding: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    margin-bottom: 1.5rem;
+    box-shadow: var(--shadow-premium);
+    backdrop-filter: blur(10px);
+    transition: var(--transition);
+  }
+  .candidatura-card:hover {
+    transform: translateY(-3px);
+    border-color: rgba(99, 102, 241, 0.2);
+  }
+  .pet-thumb {
+    width: 100px;
+    height: 100px;
+    border-radius: 12px;
+    object-fit: cover;
+    background: #1e293b;
+    flex-shrink: 0;
+  }
+  .candidatura-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+  }
+  .candidatura-status {
+    display: inline-flex;
+    align-self: flex-start;
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 700;
+  }
+  .status-badge-pendente {
+    background: rgba(245, 158, 11, 0.1);
+    color: var(--status-yellow);
+    border: 1px solid rgba(245, 158, 11, 0.2);
+  }
+  .status-badge-aprovado {
+    background: rgba(16, 185, 129, 0.1);
+    color: var(--status-green);
+    border: 1px solid rgba(16, 185, 129, 0.2);
+  }
+  .status-badge-recusado {
+    background: rgba(239, 68, 68, 0.1);
+    color: var(--status-red);
+    border: 1px solid rgba(239, 68, 68, 0.2);
+  }
+  body.high-contrast .status-badge-pendente {
+    background: #000000 !important;
+    color: #ffff00 !important;
+    border: 2px solid #ffff00 !important;
+  }
+  body.high-contrast .status-badge-aprovado {
+    background: #000000 !important;
+    color: #00ff00 !important;
+    border: 2px solid #00ff00 !important;
+  }
+  body.high-contrast .status-badge-recusado {
+    background: #000000 !important;
+    color: #ff0000 !important;
+    border: 2px solid #ff0000 !important;
+  }
+  @media (max-width: 600px) {
+    .candidatura-card {
+      flex-direction: column;
+      text-align: center;
+      padding: 1.5rem;
+    }
+    .candidatura-status {
+      align-self: center;
+    }
+    .pet-thumb {
+      width: 120px;
+      height: 120px;
+    }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="candidaturas-container">
+  <div class="breadcrumbs" style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 1.5rem;">
+    <a href="{{ url_for('index') }}" style="color: var(--text-secondary); text-decoration: none;">Início</a>
+    <i class="fa-solid fa-chevron-right" style="font-size: 0.75rem;"></i>
+    <span>Minhas Candidaturas</span>
+  </div>
+
+  <h1 style="font-size: 2.2rem; font-weight: 800; background: linear-gradient(90deg, var(--primary), var(--secondary)); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 0.5rem;">Minhas Solicitações de Adoção</h1>
+  <p style="color: var(--text-secondary); margin-bottom: 2rem;">Acompanhe o andamento das suas manifestações de interesse.</p>
+
+  {% if candidaturas %}
+    {% for cand in candidaturas %}
+      <div class="candidatura-card">
+        {% if cand.animal.foto_url %}
+          <img src="{{ url_for('static', filename='uploads/' + cand.animal.foto_url) }}" alt="Foto de {{ cand.animal.nome }}" class="pet-thumb">
+        {% else %}
+          <div class="pet-thumb" style="display: flex; align-items: center; justify-content: center;">
+            <i class="fa-solid fa-paw" style="font-size: 2.5rem; color: var(--text-secondary); opacity: 0.3;"></i>
+          </div>
+        {% endif %}
+
+        <div class="candidatura-info">
+          <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem;">
+            <h2 style="font-size: 1.4rem; font-weight: 700; color: var(--text-primary); margin: 0;">{{ cand.animal.nome }}</h2>
+            <span class="candidatura-status status-badge-{{ cand.status | lower }}">
+              {% if cand.status == 'Pendente' %}
+                ⏳ Pendente
+              {% elif cand.status == 'Aprovado' %}
+                ✅ Aprovada
+              {% else %}
+                ❌ Recusada
+              {% endif %}
+            </span>
+          </div>
+
+          <p style="font-size: 0.85rem; color: var(--text-secondary); margin: 0;">
+            <strong>Espécie:</strong> {{ cand.animal.especie }} &bull; <strong>Porte:</strong> {{ cand.animal.porte }}
+          </p>
+          
+          <p style="font-size: 0.85rem; color: var(--text-secondary); margin: 0;">
+            Solicitado em: {{ cand.data_solicitacao.strftime('%d/%m/%Y às %H:%M') }}
+          </p>
+
+          {% if cand.status == 'Aprovado' %}
+            <div style="margin-top: 1rem; padding: 1rem; background: rgba(16, 185, 129, 0.05); border: 1px solid rgba(16, 185, 129, 0.15); border-radius: 8px;">
+              <p style="font-size: 0.9rem; color: var(--text-primary); margin-bottom: 0.75rem;">
+                🎉 <strong>Parabéns! Sua candidatura foi aprovada.</strong> Entre em contato com a ONG para combinar a entrega/retirada do pet.
+              </p>
+              <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+                <a href="{{ url_for('chat', candidatura_id=cand.id) }}" class="btn btn-primary" style="padding: 0.5rem 1rem; font-size: 0.85rem;">
+                  <i class="fa-solid fa-comments"></i> Conversar no Chat
+                </a>
+                {% if cand.animal.ong.whatsapp %}
+                  <a href="https://wa.me/{{ cand.animal.ong.whatsapp }}?text=Ol%C3%A1%21+Minha+candidatura+para+adotar+o+pet+{{ cand.animal.nome }}+foi+aprovada+no+PetMatch%21+Gostaria+de+combinar+os+pr%C3%B3ximos+passos." 
+                     target="_blank" class="btn btn-secondary" style="padding: 0.5rem 1rem; font-size: 0.85rem; background-color: #25d366 !important; border-color: #25d366 !important; color: white !important;">
+                    <i class="fa-brands fa-whatsapp"></i> WhatsApp
+                  </a>
+                {% else %}
+                  <span style="font-size: 0.85rem; color: var(--text-secondary); align-self: center;">
+                    E-mail: <strong>{{ cand.animal.ong.email }}</strong>
+                  </span>
+                {% endif %}
+              </div>
+            </div>
+          {% elif cand.status == 'Recusado' %}
+            <p style="font-size: 0.85rem; color: var(--status-red); margin-top: 0.5rem;">
+              Esta solicitação não foi aprovada pelo protetor. Você pode continuar buscando outros pets compatíveis no nosso catálogo!
+            </p>
+          {% else %}
+            <p style="font-size: 0.85rem; color: var(--text-secondary); margin-top: 0.5rem; font-style: italic;">
+              Aguardando análise da documentação e compatibilidade pela ONG responsável.
+            </p>
+          {% endif %}
+        </div>
+      </div>
+    {% endfor %}
+  {% else %}
+    <div style="text-align: center; padding: 4rem 1rem; background: var(--bg-card); border: 1px solid var(--border-card); border-radius: 16px;">
+      <i class="fa-solid fa-heart-crack" style="font-size: 3rem; color: var(--text-secondary); opacity: 0.4; margin-bottom: 1rem;"></i>
+      <p style="font-size: 1.1rem; color: var(--text-secondary); margin-bottom: 1.5rem;">Você ainda não enviou nenhuma candidatura para adoção.</p>
+      <a href="{{ url_for('catalogo') }}" class="btn btn-primary">Ver Animais Disponíveis</a>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

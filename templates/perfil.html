@@ -1,0 +1,538 @@
+{% extends "base.html" %}
+
+{% block title %}Meu Perfil - PetMatch{% endblock %}
+
+{% block head %}
+<style>
+  .profile-container {
+    max-width: 800px;
+    margin: 2rem auto;
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+  }
+  .profile-header-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-card);
+    border-radius: 16px;
+    padding: 2.5rem;
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+    box-shadow: var(--shadow-premium);
+    backdrop-filter: blur(10px);
+  }
+  .profile-avatar {
+    width: 90px;
+    height: 90px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--bg-app);
+    font-size: 2.5rem;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+  body.high-contrast .profile-avatar {
+    background: #ffff00 !important;
+    color: #000000 !important;
+    border: 2px solid #ffff00;
+  }
+  .profile-title-section {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+  }
+  .profile-badge {
+    align-self: flex-start;
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    background: rgba(99, 102, 241, 0.1);
+    color: var(--secondary);
+    border: 1px solid rgba(99, 102, 241, 0.2);
+  }
+  body.light-theme .profile-badge {
+    background: rgba(79, 70, 229, 0.08);
+    color: var(--secondary);
+  }
+  body.high-contrast .profile-badge {
+    background: #000000 !important;
+    color: #ffff00 !important;
+    border: 2px solid #ffff00 !important;
+  }
+
+  /* ========== SISTEMA DE ABAS ========== */
+  .profile-tabs {
+    display: flex;
+    gap: 0;
+    background: var(--bg-card);
+    border: 1px solid var(--border-card);
+    border-radius: 14px;
+    padding: 0.35rem;
+    box-shadow: var(--shadow-premium);
+    backdrop-filter: blur(10px);
+  }
+  .profile-tab {
+    flex: 1;
+    padding: 0.85rem 1.5rem;
+    border: none;
+    background: transparent;
+    color: var(--text-secondary);
+    font-family: var(--font-main);
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    border-radius: 10px;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    position: relative;
+  }
+  .profile-tab:hover {
+    color: var(--text-primary);
+    background: rgba(255, 255, 255, 0.03);
+  }
+  .profile-tab.active {
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.15), rgba(99, 102, 241, 0.1));
+    color: var(--text-primary);
+    box-shadow: 0 2px 10px rgba(16, 185, 129, 0.1);
+  }
+  .profile-tab.active::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 20%;
+    right: 20%;
+    height: 3px;
+    background: linear-gradient(90deg, var(--primary), var(--secondary));
+    border-radius: 3px;
+  }
+  body.high-contrast .profile-tab.active {
+    background: #000000 !important;
+    color: #ffff00 !important;
+    border: 2px solid #ffff00 !important;
+  }
+  .tab-badge {
+    padding: 0.1rem 0.5rem;
+    border-radius: 10px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    background: rgba(16, 185, 129, 0.15);
+    color: var(--primary);
+    min-width: 20px;
+    text-align: center;
+  }
+
+  /* ========== CONTEÚDO DAS ABAS ========== */
+  .tab-content {
+    display: none;
+    animation: tabFadeIn 0.35s ease;
+  }
+  .tab-content.active {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+  }
+  @keyframes tabFadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ========== ESTILOS COMPARTILHADOS ========== */
+  .profile-details-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+  }
+  @media (max-width: 600px) {
+    .profile-header-card {
+      flex-direction: column;
+      text-align: center;
+      padding: 2rem;
+    }
+    .profile-badge {
+      align-self: center;
+    }
+    .profile-details-grid {
+      grid-template-columns: 1fr;
+    }
+    .profile-tab {
+      font-size: 0.85rem;
+      padding: 0.75rem 0.75rem;
+    }
+    .profile-tab i {
+      font-size: 0.85rem;
+    }
+  }
+  .detail-item {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid var(--border-card);
+    border-radius: 12px;
+    padding: 1.25rem;
+  }
+  .detail-item label {
+    display: block;
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    font-weight: 600;
+    margin-bottom: 0.3rem;
+    letter-spacing: 0.5px;
+  }
+  .detail-item span {
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+  .stats-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+  }
+  .stat-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-card);
+    border-radius: 16px;
+    padding: 2rem;
+    text-align: center;
+    box-shadow: var(--shadow-premium);
+    backdrop-filter: blur(10px);
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  .stat-card .value {
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: var(--primary);
+  }
+  .stat-card .label {
+    color: var(--text-secondary);
+    font-weight: 500;
+  }
+
+  /* ========== GRID DE ANIMAIS ========== */
+  .meus-pets-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 1.25rem;
+  }
+  .meu-pet-card {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid var(--border-card);
+    border-radius: 12px;
+    overflow: hidden;
+    transition: var(--transition);
+    cursor: pointer;
+  }
+  .meu-pet-card:hover {
+    transform: translateY(-4px);
+    border-color: rgba(99, 102, 241, 0.3);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+  }
+  .meu-pet-img {
+    position: relative;
+    width: 100%;
+    height: 140px;
+    overflow: hidden;
+  }
+  .meu-pet-img img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .meu-pet-status {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    padding: 0.2rem 0.5rem;
+    border-radius: 6px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    backdrop-filter: blur(8px);
+  }
+  .status-disp {
+    background: rgba(16, 185, 129, 0.2);
+    color: var(--status-green);
+    border: 1px solid rgba(16, 185, 129, 0.3);
+  }
+  .status-neg {
+    background: rgba(245, 158, 11, 0.2);
+    color: var(--status-yellow);
+    border: 1px solid rgba(245, 158, 11, 0.3);
+  }
+  .status-doado {
+    background: rgba(99, 102, 241, 0.2);
+    color: var(--secondary);
+    border: 1px solid rgba(99, 102, 241, 0.3);
+  }
+  .meu-pet-info {
+    padding: 0.85rem;
+  }
+  .meu-pet-info h3 {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0 0 0.25rem 0;
+  }
+  .meu-pet-info p {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    margin: 0 0 0.4rem 0;
+  }
+  .meu-pet-date {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    opacity: 0.7;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="profile-container">
+  <div class="breadcrumbs" style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.9rem; color: var(--text-secondary);">
+    <a href="{{ url_for('index') }}" style="color: var(--text-secondary); text-decoration: none;">Início</a>
+    <i class="fa-solid fa-chevron-right" style="font-size: 0.75rem;"></i>
+    <span>Meu Perfil</span>
+  </div>
+
+  <!-- Header Card -->
+  <div class="profile-header-card">
+    <div class="profile-avatar">
+      {{ current_user.nome[0] | upper }}
+    </div>
+    <div class="profile-title-section">
+      <span class="profile-badge">
+        {% if current_user.tipo == 'ONG' %}
+          ONG / Instituição
+        {% elif current_user.tipo == 'PROTETOR' %}
+          Protetor Independente
+        {% else %}
+          Adotante
+        {% endif %}
+      </span>
+      <h1 style="font-size: 2rem; font-weight: 800; color: var(--text-primary); margin: 0.3rem 0 0 0;">{{ current_user.nome }}</h1>
+      <p style="color: var(--text-secondary); margin: 0;">Membro desde {{ current_user.id * 3 }} de Maio, 2026</p>
+    </div>
+  </div>
+
+  <!-- Abas de Navegação -->
+  <div class="profile-tabs">
+    <button class="profile-tab active" data-tab="perfil" id="tab-perfil">
+      <i class="fa-solid fa-user"></i> Meu Perfil
+    </button>
+    <button class="profile-tab" data-tab="animais" id="tab-animais">
+      <i class="fa-solid fa-paw"></i> Meus Animais
+      {% if current_user.tipo in ['ONG', 'PROTETOR'] and meus_pets %}
+        <span class="tab-badge">{{ meus_pets | length }}</span>
+      {% elif current_user.tipo == 'ADOTANTE' and (meus_favoritos or minhas_candidaturas_pets) %}
+        <span class="tab-badge">{{ (meus_favoritos | length) + (minhas_candidaturas_pets | length) }}</span>
+      {% endif %}
+    </button>
+  </div>
+
+  <!-- ==================== ABA 1: MEU PERFIL ==================== -->
+  <div class="tab-content active" id="content-perfil">
+    <!-- Estatísticas -->
+    <div class="stats-row">
+      {% if current_user.tipo in ['ONG', 'PROTETOR'] %}
+        <div class="stat-card">
+          <span class="value">{{ stats.total_pets }}</span>
+          <span class="label">Pets Cadastrados</span>
+        </div>
+        <div class="stat-card">
+          <span class="value">{{ stats.total_solicitacoes }}</span>
+          <span class="label">Solicitações Recebidas</span>
+        </div>
+      {% else %}
+        <div class="stat-card">
+          <span class="value">{{ stats.total_solicitacoes }}</span>
+          <span class="label">Candidaturas Enviadas</span>
+        </div>
+        <div class="stat-card">
+          <span class="value">{{ stats.total_favs }}</span>
+          <span class="label">Animais Favoritados</span>
+        </div>
+      {% endif %}
+    </div>
+
+    <!-- Detalhes do Cadastro -->
+    <div class="profile-header-card" style="flex-direction: column; align-items: stretch; gap: 1.5rem;">
+      <h2 style="font-size: 1.4rem; font-weight: 700; border-bottom: 1px solid var(--border-card); padding-bottom: 0.8rem; margin: 0;"><i class="fa-solid fa-id-card" style="color: var(--primary);"></i> Dados do Cadastro</h2>
+      <div class="profile-details-grid">
+        <div class="detail-item">
+          <label>Nome Completo</label>
+          <span>{{ current_user.nome }}</span>
+        </div>
+        <div class="detail-item">
+          <label>E-mail de Acesso</label>
+          <span>{{ current_user.email }}</span>
+        </div>
+        <div class="detail-item">
+          <label>Documento (CPF)</label>
+          <span>{{ current_user.cpf or '-' }}</span>
+        </div>
+        <div class="detail-item">
+          <label>WhatsApp / Celular</label>
+          <span>{{ current_user.whatsapp or '-' }}</span>
+        </div>
+        <div class="detail-item">
+          <label>Data de Nascimento</label>
+          <span>{{ current_user.data_nascimento.strftime('%d/%m/%Y') if current_user.data_nascimento else '-' }}</span>
+        </div>
+        <div class="detail-item">
+          <label>Tipo de Perfil</label>
+          <span>{{ current_user.tipo }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== ABA 2: MEUS ANIMAIS ==================== -->
+  <div class="tab-content" id="content-animais">
+
+    {% if current_user.tipo in ['ONG', 'PROTETOR'] %}
+      <!-- ONG/Protetor: Animais Cadastrados -->
+      {% if meus_pets %}
+        <div class="profile-header-card" style="flex-direction: column; align-items: stretch; gap: 1.5rem;">
+          <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-card); padding-bottom: 0.8rem;">
+            <h2 style="font-size: 1.4rem; font-weight: 700; margin: 0;"><i class="fa-solid fa-paw" style="color: var(--primary);"></i> Meus Animais Cadastrados</h2>
+            <a href="{{ url_for('cadastrar_pet') }}" class="btn btn-primary" style="padding: 0.4rem 1rem; font-size: 0.85rem;">
+              <i class="fa-solid fa-plus"></i> Novo Pet
+            </a>
+          </div>
+          <div class="meus-pets-grid">
+            {% for pet in meus_pets %}
+              <a href="{{ url_for('detalhes_animal', id=pet.id) }}" class="meu-pet-card" style="text-decoration: none; color: inherit;">
+                <div class="meu-pet-img">
+                  {% if pet.foto_url %}
+                    <img src="{{ url_for('static', filename='uploads/' + pet.foto_url) }}" alt="{{ pet.nome }}">
+                  {% else %}
+                    <div style="height: 100%; display: flex; align-items: center; justify-content: center; background: #1e293b;">
+                      <i class="fa-solid fa-paw" style="font-size: 2rem; color: var(--text-secondary); opacity: 0.3;"></i>
+                    </div>
+                  {% endif %}
+                  <span class="meu-pet-status {% if pet.status == 'Disponivel' %}status-disp{% elif pet.status == 'Negociacao' %}status-neg{% else %}status-doado{% endif %}">
+                    {% if pet.status == 'Disponivel' %}Disponível{% elif pet.status == 'Negociacao' %}Em Negociação{% else %}Doado{% endif %}
+                  </span>
+                </div>
+                <div class="meu-pet-info">
+                  <h3>{{ pet.nome }}</h3>
+                  <p>{{ pet.especie }} • {{ pet.porte }} • {{ pet.sexo }}</p>
+                  <span class="meu-pet-date"><i class="fa-regular fa-calendar"></i> {{ pet.data_cadastro.strftime('%d/%m/%Y') }}</span>
+                </div>
+              </a>
+            {% endfor %}
+          </div>
+        </div>
+      {% else %}
+        <div class="profile-header-card" style="flex-direction: column; align-items: center; gap: 1.5rem; padding: 3rem;">
+          <i class="fa-solid fa-paw" style="font-size: 3rem; color: var(--text-secondary); opacity: 0.3;"></i>
+          <p style="color: var(--text-secondary); font-size: 1.1rem; margin: 0;">Você ainda não cadastrou nenhum animal.</p>
+          <a href="{{ url_for('cadastrar_pet') }}" class="btn btn-primary">
+            <i class="fa-solid fa-plus"></i> Cadastrar Primeiro Pet
+          </a>
+        </div>
+      {% endif %}
+
+    {% else %}
+      <!-- Adotante: Candidaturas + Favoritos -->
+
+      <!-- Animais que se candidatou -->
+      {% if minhas_candidaturas_pets %}
+        <div class="profile-header-card" style="flex-direction: column; align-items: stretch; gap: 1.5rem;">
+          <h2 style="font-size: 1.4rem; font-weight: 700; border-bottom: 1px solid var(--border-card); padding-bottom: 0.8rem; margin: 0;">
+            <i class="fa-solid fa-heart" style="color: var(--primary);"></i> Minhas Candidaturas
+          </h2>
+          <div class="meus-pets-grid">
+            {% for item in minhas_candidaturas_pets %}
+              <a href="{{ url_for('detalhes_animal', id=item.animal.id) }}" class="meu-pet-card" style="text-decoration: none; color: inherit;">
+                <div class="meu-pet-img">
+                  {% if item.animal.foto_url %}
+                    <img src="{{ url_for('static', filename='uploads/' + item.animal.foto_url) }}" alt="{{ item.animal.nome }}">
+                  {% else %}
+                    <div style="height: 100%; display: flex; align-items: center; justify-content: center; background: #1e293b;">
+                      <i class="fa-solid fa-paw" style="font-size: 2rem; color: var(--text-secondary); opacity: 0.3;"></i>
+                    </div>
+                  {% endif %}
+                  <span class="meu-pet-status {% if item.status == 'Aprovado' %}status-disp{% elif item.status == 'Pendente' %}status-neg{% else %}status-recusado{% endif %}">
+                    {% if item.status == 'Aprovado' %}✅ Aprovado{% elif item.status == 'Pendente' %}⏳ Pendente{% else %}❌ Recusado{% endif %}
+                  </span>
+                </div>
+                <div class="meu-pet-info">
+                  <h3>{{ item.animal.nome }}</h3>
+                  <p>{{ item.animal.especie }} • {{ item.animal.porte }} • {{ item.animal.sexo }}</p>
+                </div>
+              </a>
+            {% endfor %}
+          </div>
+        </div>
+      {% endif %}
+
+      <!-- Animais favoritados -->
+      {% if meus_favoritos %}
+        <div class="profile-header-card" style="flex-direction: column; align-items: stretch; gap: 1.5rem;">
+          <h2 style="font-size: 1.4rem; font-weight: 700; border-bottom: 1px solid var(--border-card); padding-bottom: 0.8rem; margin: 0;">
+            <i class="fa-solid fa-star" style="color: #f59e0b;"></i> Meus Favoritos
+          </h2>
+          <div class="meus-pets-grid">
+            {% for pet in meus_favoritos %}
+              <a href="{{ url_for('detalhes_animal', id=pet.id) }}" class="meu-pet-card" style="text-decoration: none; color: inherit;">
+                <div class="meu-pet-img">
+                  {% if pet.foto_url %}
+                    <img src="{{ url_for('static', filename='uploads/' + pet.foto_url) }}" alt="{{ pet.nome }}">
+                  {% else %}
+                    <div style="height: 100%; display: flex; align-items: center; justify-content: center; background: #1e293b;">
+                      <i class="fa-solid fa-paw" style="font-size: 2rem; color: var(--text-secondary); opacity: 0.3;"></i>
+                    </div>
+                  {% endif %}
+                  <span class="meu-pet-status {% if pet.status == 'Disponivel' %}status-disp{% elif pet.status == 'Negociacao' %}status-neg{% else %}status-doado{% endif %}">
+                    {% if pet.status == 'Disponivel' %}Disponível{% elif pet.status == 'Negociacao' %}Em Negociação{% else %}Doado{% endif %}
+                  </span>
+                </div>
+                <div class="meu-pet-info">
+                  <h3>{{ pet.nome }}</h3>
+                  <p>{{ pet.especie }} • {{ pet.porte }} • {{ pet.sexo }}</p>
+                </div>
+              </a>
+            {% endfor %}
+          </div>
+        </div>
+      {% endif %}
+
+      {% if not meus_favoritos and not minhas_candidaturas_pets %}
+        <div class="profile-header-card" style="flex-direction: column; align-items: center; gap: 1.5rem; padding: 3rem;">
+          <i class="fa-solid fa-paw" style="font-size: 3rem; color: var(--text-secondary); opacity: 0.3;"></i>
+          <p style="color: var(--text-secondary); font-size: 1.1rem; margin: 0;">Você ainda não tem animais favoritados ou candidaturas.</p>
+          <a href="{{ url_for('catalogo') }}" class="btn btn-primary">
+            <i class="fa-solid fa-search"></i> Explorar Animais
+          </a>
+        </div>
+      {% endif %}
+    {% endif %}
+  </div>
+</div>
+
+<script>
+  // Sistema de Abas
+  document.querySelectorAll('.profile-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      // Desativar todas as abas
+      document.querySelectorAll('.profile-tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+      
+      // Ativar aba clicada
+      tab.classList.add('active');
+      const targetId = 'content-' + tab.getAttribute('data-tab');
+      document.getElementById(targetId).classList.add('active');
+    });
+  });
+</script>
+{% endblock %}
+

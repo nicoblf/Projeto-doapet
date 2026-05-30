@@ -1,0 +1,302 @@
+{% extends "base.html" %}
+
+{% block head %}
+<style>
+  /* Seção do Carrossel */
+  .carousel-section {
+    margin-top: 5rem;
+    padding: 2rem 0;
+    text-align: center;
+    position: relative;
+    width: 100%;
+  }
+
+  .carousel-section h2 {
+    font-size: 2rem;
+    font-weight: 800;
+    margin-bottom: 0.5rem;
+    color: var(--text-primary);
+  }
+
+  .carousel-section h2 span {
+    background: linear-gradient(90deg, var(--primary), var(--secondary));
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  /* Container do Carrossel Infinito */
+  .carousel-container {
+    overflow: hidden;
+    width: 100%;
+    position: relative;
+    padding: 1.5rem 0;
+    margin-top: 1.5rem;
+  }
+
+  /* Fade nas bordas para suavizar entrada e saída */
+  .carousel-container::before, .carousel-container::after {
+    content: "";
+    height: 100%;
+    position: absolute;
+    top: 0;
+    width: 150px;
+    z-index: 2;
+    pointer-events: none;
+  }
+
+  .carousel-container::before {
+    left: 0;
+    background: linear-gradient(to right, var(--bg-app) 0%, transparent 100%);
+  }
+
+  .carousel-container::after {
+    right: 0;
+    background: linear-gradient(to left, var(--bg-app) 0%, transparent 100%);
+  }
+
+  body.high-contrast .carousel-container::before, 
+  body.high-contrast .carousel-container::after {
+    background: none !important; /* Sem gradientes no alto contraste */
+  }
+
+  .carousel-track {
+    display: flex;
+    gap: 2rem;
+    width: max-content;
+    animation: scroll 35s linear infinite;
+  }
+
+  .carousel-track:hover {
+    animation-play-state: paused;
+  }
+
+  @keyframes scroll {
+    0% {
+      transform: translateX(0);
+    }
+    100% {
+      transform: translateX(-50%);
+    }
+  }
+
+  /* Cartões no Carrossel */
+  .carousel-card {
+    flex: 0 0 240px;
+    background: var(--bg-card);
+    border: 1px solid var(--border-card);
+    border-radius: 16px;
+    overflow: hidden;
+    transition: var(--transition);
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  }
+
+  .carousel-card:hover {
+    transform: translateY(-8px);
+    border-color: rgba(99, 102, 241, 0.4);
+    box-shadow: var(--shadow-premium);
+  }
+
+  .carousel-img-wrapper {
+    height: 180px;
+    background: #1e293b;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+
+  .carousel-img-wrapper img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .carousel-placeholder {
+    font-size: 3rem;
+    color: var(--text-secondary);
+    opacity: 0.3;
+  }
+
+  .carousel-info {
+    padding: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    text-align: left;
+  }
+
+  .carousel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .carousel-name {
+    font-weight: 700;
+    font-size: 1.2rem;
+    color: var(--text-primary);
+  }
+
+  .sex-macho { color: #3b82f6; }
+  .sex-femea { color: #ec4899; }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="hero">
+  <h1>Adoção Responsável de Animais com <span>Match Inteligente</span></h1>
+  <p>Conectamos ONGs, protetores e tutores de forma segura e eficiente, com prontuários de vacinação digital e verificação de compatibilidade socioambiental.</p>
+  <div style="display: flex; gap: 1rem; margin-top: 1rem;">
+    <a href="{{ url_for('catalogo') }}" class="btn btn-primary"><i class="fa-solid fa-search"></i> Buscar Animais</a>
+    <a href="{{ url_for('contato') }}" class="btn btn-secondary"><i class="fa-solid fa-heart"></i> Quero Ajudar</a>
+  </div>
+</section>
+
+<!-- Seção de Estatísticas Animadas -->
+<section class="stats-section">
+  <div class="stats-grid">
+    <div class="stat-item-card">
+      <div class="stat-icon-box primary-color">
+        <i class="fa-solid fa-house-chimney-window"></i>
+      </div>
+      <div class="stat-number-wrapper">
+        <span class="stat-number-counter" data-target="{{ total_adotados }}">0</span>
+      </div>
+      <p class="stat-label-text">Animais Adotados</p>
+    </div>
+
+    <div class="stat-item-card">
+      <div class="stat-icon-box secondary-color">
+        <i class="fa-solid fa-file-signature"></i>
+      </div>
+      <div class="stat-number-wrapper">
+        <span class="stat-number-counter" data-target="{{ total_candidaturas }}">0</span>
+      </div>
+      <p class="stat-label-text">Inscrições de Adoção</p>
+    </div>
+
+    <div class="stat-item-card">
+      <div class="stat-icon-box primary-color">
+        <i class="fa-solid fa-paw"></i>
+      </div>
+      <div class="stat-number-wrapper">
+        <span class="stat-number-counter" data-target="{{ total_cadastrados }}">0</span>
+      </div>
+      <p class="stat-label-text">Pets Protegidos</p>
+    </div>
+  </div>
+</section>
+
+{% if animais %}
+<section class="carousel-section">
+  <h2>Conheça Nossos <span>Pets Cadastrados</span></h2>
+  <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">Passe o mouse por cima de um card para pausar o movimento.</p>
+  
+  <div class="carousel-container">
+    <div class="carousel-track">
+      
+      <!-- Primeiro loop para renderizar os cards -->
+      {% for pet in animais %}
+        <div class="carousel-card">
+          <div class="carousel-img-wrapper">
+            {% if pet.foto_url %}
+              <img src="{{ url_for('static', filename='uploads/' + pet.foto_url) }}" alt="Foto de {{ pet.nome }}">
+            {% else %}
+              <i class="fa-solid fa-paw carousel-placeholder"></i>
+            {% endif %}
+          </div>
+          <div class="carousel-info">
+            <div class="carousel-header">
+              <span class="carousel-name">{{ pet.nome }}</span>
+              {% if pet.sexo == 'Macho' %}
+                <i class="fa-solid fa-mars sex-macho" title="Macho"></i>
+              {% else %}
+                <i class="fa-solid fa-venus sex-femea" title="Fêmea"></i>
+              {% endif %}
+            </div>
+            <p style="font-size: 0.8rem; color: var(--text-secondary); margin: 0;">
+              {{ pet.porte }} &bull; {{ pet.especie }}
+            </p>
+            <a href="{{ url_for('detalhes_animal', id=pet.id) }}" class="btn btn-primary" style="margin-top: 0.5rem; padding: 0.4rem; font-size: 0.85rem; width: 100%;">
+              Ver Detalhes
+            </a>
+          </div>
+        </div>
+      {% endfor %}
+      
+      <!-- Duplicado para criar o efeito infinito contínuo -->
+      {% for pet in animais %}
+        <div class="carousel-card">
+          <div class="carousel-img-wrapper">
+            {% if pet.foto_url %}
+              <img src="{{ url_for('static', filename='uploads/' + pet.foto_url) }}" alt="Foto de {{ pet.nome }}">
+            {% else %}
+              <i class="fa-solid fa-paw carousel-placeholder"></i>
+            {% endif %}
+          </div>
+          <div class="carousel-info">
+            <div class="carousel-header">
+              <span class="carousel-name">{{ pet.nome }}</span>
+              {% if pet.sexo == 'Macho' %}
+                <i class="fa-solid fa-mars sex-macho" title="Macho"></i>
+              {% else %}
+                <i class="fa-solid fa-venus sex-femea" title="Fêmea"></i>
+              {% endif %}
+            </div>
+            <p style="font-size: 0.8rem; color: var(--text-secondary); margin: 0;">
+              {{ pet.porte }} &bull; {{ pet.especie }}
+            </p>
+            <a href="{{ url_for('detalhes_animal', id=pet.id) }}" class="btn btn-primary" style="margin-top: 0.5rem; padding: 0.4rem; font-size: 0.85rem; width: 100%;">
+              Ver Detalhes
+            </a>
+          </div>
+        </div>
+      {% endfor %}
+
+    </div>
+  </div>
+</section>
+{% endif %}
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const counters = document.querySelectorAll('.stat-number-counter');
+    const speed = 100; // Ajuste de velocidade
+
+    const startCounting = (counter) => {
+      const updateCount = () => {
+        const target = +counter.getAttribute('data-target');
+        const count = +counter.innerText;
+        const increment = Math.ceil(target / speed) || 1;
+
+        if (count < target) {
+          counter.innerText = count + increment;
+          setTimeout(updateCount, 20);
+        } else {
+          counter.innerText = target;
+        }
+      };
+      updateCount();
+    };
+
+    // Ativa animação apenas quando visível no scroll
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const counter = entry.target;
+          startCounting(counter);
+          observer.unobserve(counter);
+        }
+      });
+    }, { threshold: 0.2 });
+
+    counters.forEach(counter => {
+      observer.observe(counter);
+    });
+  });
+</script>
+{% endblock %}

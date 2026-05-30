@@ -1,0 +1,316 @@
+{% extends "base.html" %}
+
+{% block title %}Ver Animais - PetMatch{% endblock %}
+
+{% block head %}
+<style>
+  .catalog-layout {
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    gap: 2rem;
+    margin-top: 1.5rem;
+  }
+  @media (max-width: 900px) {
+    .catalog-layout {
+      grid-template-columns: 1fr;
+    }
+    .filter-sidebar {
+      position: static !important;
+      margin-bottom: 1.5rem;
+    }
+  }
+  .filter-sidebar {
+    background: var(--bg-card);
+    border: 1px solid var(--border-card);
+    padding: 1.5rem;
+    border-radius: 12px;
+    height: fit-content;
+    position: sticky;
+    top: 90px;
+  }
+  .filter-group {
+    margin-bottom: 1.5rem;
+  }
+  .filter-group label {
+    display: block;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    letter-spacing: 0.5px;
+  }
+  .filter-group select {
+    width: 100%;
+    background: rgba(15, 23, 42, 0.6);
+    border: 1px solid var(--border-card);
+    padding: 0.6rem 0.8rem;
+    border-radius: 8px;
+    color: var(--text-primary);
+    font-family: var(--font-main);
+    font-size: 0.9rem;
+  }
+  .filter-group select:focus {
+    outline: none;
+    border-color: var(--primary);
+  }
+  
+  /* Grid de Animais */
+  .pet-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.5rem;
+  }
+  .pet-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-card);
+    border-radius: 12px;
+    overflow: hidden;
+    transition: var(--transition);
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  }
+  .pet-card:hover {
+    transform: translateY(-5px);
+    border-color: rgba(99, 102, 241, 0.3);
+    box-shadow: var(--shadow-premium);
+  }
+  .pet-img-wrapper {
+    width: 100%;
+    height: 200px;
+    background: #1e293b;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+  .pet-img-wrapper img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .pet-placeholder {
+    font-size: 3.5rem;
+    color: var(--text-secondary);
+    opacity: 0.4;
+  }
+  .pet-badge-status {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    padding: 0.25rem 0.6rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    backdrop-filter: blur(10px);
+  }
+  .status-disponivel {
+    background: rgba(16, 185, 129, 0.85);
+    color: #fff;
+  }
+  .status-negociacao {
+    background: rgba(245, 158, 11, 0.85);
+    color: #fff;
+  }
+  
+  .pet-info {
+    padding: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    gap: 0.6rem;
+  }
+  .pet-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .pet-name {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--text-primary);
+  }
+  .pet-sex {
+    font-size: 1rem;
+  }
+  .sex-macho { color: #3b82f6; }
+  .sex-femea { color: #ec4899; }
+  
+  .pet-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+  }
+  .tag-badge {
+    font-size: 0.75rem;
+    padding: 0.15rem 0.5rem;
+    border-radius: 4px;
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--text-secondary);
+    border: 1px solid var(--border-card);
+  }
+  
+  /* Semáforo visual na listagem */
+  .health-status {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    margin-top: auto;
+    padding-top: 0.5rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.04);
+  }
+  .semaphore-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    display: inline-block;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div>
+  <div>
+    <h1 style="font-size: 2.2rem; font-weight: 800; background: linear-gradient(90deg, var(--primary), var(--secondary)); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;">Animais para Adoção</h1>
+    <p style="color: var(--text-secondary);">Encontre o companheiro ideal e faça o match de compatibilidade.</p>
+  </div>
+
+  <div class="catalog-layout">
+    
+    <!-- Filtros Lateral -->
+    <aside class="filter-sidebar">
+      <h3 style="font-size: 1.1rem; margin-bottom: 1.25rem; font-weight: 600;">Filtros</h3>
+      <form action="{{ url_for('catalogo') }}" method="GET">
+        
+        <div class="filter-group">
+          <label for="especie">Espécie</label>
+          <select id="especie" name="especie" onchange="this.form.submit()">
+            <option value="">Todas</option>
+            <option value="Cão" {% if especie_sel == 'Cão' %}selected{% endif %}>Cães</option>
+            <option value="Gato" {% if especie_sel == 'Gato' %}selected{% endif %}>Gatos</option>
+            <option value="Ave" {% if especie_sel == 'Ave' %}selected{% endif %}>Aves</option>
+            <option value="Roedor" {% if especie_sel == 'Roedor' %}selected{% endif %}>Roedores</option>
+          </select>
+        </div>
+
+        <div class="filter-group">
+          <label for="porte">Porte</label>
+          <select id="porte" name="porte" onchange="this.form.submit()">
+            <option value="">Todos</option>
+            <option value="Pequeno" {% if porte_sel == 'Pequeno' %}selected{% endif %}>Pequeno</option>
+            <option value="Médio" {% if porte_sel == 'Médio' %}selected{% endif %}>Médio</option>
+            <option value="Grande" {% if porte_sel == 'Grande' %}selected{% endif %}>Grande</option>
+          </select>
+        </div>
+
+        <div class="filter-group">
+          <label for="sexo">Sexo</label>
+          <select id="sexo" name="sexo" onchange="this.form.submit()">
+            <option value="">Todos</option>
+            <option value="Macho" {% if sexo_sel == 'Macho' %}selected{% endif %}>Macho</option>
+            <option value="Fêmea" {% if sexo_sel == 'Fêmea' %}selected{% endif %}>Fêmea</option>
+          </select>
+        </div>
+
+        <div class="filter-group">
+          <label for="tag">Personalidade (Tag)</label>
+          <select id="tag" name="tag" onchange="this.form.submit()">
+            <option value="">Todas</option>
+            {% for tag_name in todas_tags %}
+              <option value="{{ tag_name }}" {% if tag_sel == tag_name %}selected{% endif %}>{{ tag_name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <a href="{{ url_for('catalogo') }}" class="btn btn-outline" style="width: 100%; font-size: 0.85rem; text-align: center;">Limpar Filtros</a>
+      </form>
+    </aside>
+
+    <!-- Lista de Pets -->
+    <section>
+      <div class="pet-grid">
+        {% for pet in animais %}
+        <div class="pet-card">
+          <div class="pet-img-wrapper">
+            {% if pet.foto_url %}
+              <img src="{{ url_for('static', filename='uploads/' + pet.foto_url) }}" alt="Foto de {{ pet.nome }}">
+            {% else %}
+              <i class="fa-solid fa-paw pet-placeholder"></i>
+            {% endif %}
+            
+            {% if pet.status == 'Disponivel' %}
+              <span class="pet-badge-status status-disponivel">Disponível</span>
+            {% else %}
+              <span class="pet-badge-status status-negociacao">Em Negociação</span>
+            {% endif %}
+          </div>
+          
+          <div class="pet-info">
+            <div class="pet-header">
+              <span class="pet-name">{{ pet.nome }}</span>
+              {% if pet.sexo == 'Macho' %}
+                <i class="fa-solid fa-mars pet-sex sex-macho" title="Macho"></i>
+              {% else %}
+                <i class="fa-solid fa-venus pet-sex sex-femea" title="Fêmea"></i>
+              {% endif %}
+            </div>
+            
+            <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.3rem;">
+              {{ pet.porte }} &bull; {{ pet.especie }}
+            </p>
+            
+            {% if pet.tags %}
+            <div class="pet-tags">
+              {% for t in pet.tags %}
+                <span class="tag-badge">{{ t }}</span>
+              {% endfor %}
+            </div>
+            {% endif %}
+
+            <!-- Semáforo de Vacinas -->
+            <div class="health-status">
+              {% set status_vacinas = 'verde' %}
+              {% set count_vencidas = namespace(value=0) %}
+              {% set count_atencao = namespace(value=0) %}
+              
+              {% for vacina in pet.vacinas %}
+                {% if vacina.status_vacina == 'vermelho' %}
+                  {% set count_vencidas.value = count_vencidas.value + 1 %}
+                {% elif vacina.status_vacina == 'amarelo' %}
+                  {% set count_atencao.value = count_atencao.value + 1 %}
+                {% endif %}
+              {% endfor %}
+
+              {% if count_vencidas.value > 0 %}
+                <span class="semaphore-dot" style="background: var(--status-red);"></span>
+                <span>Vacinas Atrasadas ({{ count_vencidas.value }})</span>
+              {% elif count_atencao.value > 0 %}
+                <span class="semaphore-dot" style="background: var(--status-yellow);"></span>
+                <span>Dose Pendente em breve</span>
+              {% else %}
+                <span class="semaphore-dot" style="background: var(--status-green);"></span>
+                <span>Saúde / Vacinas em dia</span>
+              {% endif %}
+            </div>
+
+            <a href="{{ url_for('detalhes_animal', id=pet.id) }}" class="btn btn-primary" style="width: 100%; margin-top: 0.5rem; padding: 0.5rem; font-size: 0.9rem;">
+              Ver Detalhes
+            </a>
+          </div>
+        </div>
+        {% else %}
+        <div style="grid-column: 1 / -1; text-align: center; padding: 4rem 1rem; color: var(--text-secondary);">
+          <i class="fa-solid fa-circle-info" style="font-size: 2.5rem; margin-bottom: 1rem; opacity: 0.5;"></i>
+          <p style="font-size: 1.1rem;">Nenhum animal cadastrado atende aos filtros selecionados.</p>
+        </div>
+        {% endfor %}
+      </div>
+    </section>
+
+  </div>
+</div>
+{% endblock %}

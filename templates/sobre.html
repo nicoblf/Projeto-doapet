@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block title %}Sobre Nós - PetMatch{% endblock %}
+
+{% block content %}
+<div class="content-card">
+  <h1 style="font-size: 2.5rem; margin-bottom: 1.5rem; text-align: center; background: linear-gradient(90deg, var(--primary), var(--secondary)); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;">Sobre o PetMatch</h1>
+  
+  <p style="font-size: 1.1rem; line-height: 1.8; color: var(--text-secondary); margin-bottom: 1.5rem; text-align: justify;">
+    O <strong>PetMatch</strong> nasceu como um <strong>Projeto Extensionista Universitário</strong> voltado para solucionar um dos maiores gargalos enfrentados por ONGs e protetores de animais independentes: a ineficiência nos processos de adoção e a falta de histórico de saúde animal centralizado.
+  </p>
+
+  <p style="font-size: 1.1rem; line-height: 1.8; color: var(--text-secondary); margin-bottom: 1.5rem; text-align: justify;">
+    Observando as dificuldades diárias das instituições de acolhimento, percebemos que o retrabalho na comunicação e a dificuldade de gerenciar prontuários médicos levavam a um desgaste operacional excessivo. Diante disso, projetamos uma plataforma unificada que atua em três pilares principais:
+  </p>
+
+  <div style="display: grid; grid-template-columns: 1fr; gap: 1.5rem; margin: 2rem 0;">
+    <div style="padding: 1.5rem; background: rgba(255,255,255,0.03); border: 1px solid var(--border-card); border-radius: 12px; display: flex; gap: 1rem; align-items: flex-start;">
+      <i class="fa-solid fa-bolt" style="font-size: 1.5rem; color: var(--primary); margin-top: 0.2rem;"></i>
+      <div>
+        <h3 style="font-size: 1.2rem; margin-bottom: 0.5rem; color: var(--text-primary);">Match Inteligente</h3>
+        <p style="color: var(--text-secondary); line-height: 1.6;">Avaliamos a compatibilidade entre a rotina do adotante (espaço, tempo livre) e as necessidades do pet para garantir adoções duradouras.</p>
+      </div>
+    </div>
+
+    <div style="padding: 1.5rem; background: rgba(255,255,255,0.03); border: 1px solid var(--border-card); border-radius: 12px; display: flex; gap: 1rem; align-items: flex-start;">
+      <i class="fa-solid fa-notes-medical" style="font-size: 1.5rem; color: var(--secondary); margin-top: 0.2rem;"></i>
+      <div>
+        <h3 style="font-size: 1.2rem; margin-bottom: 0.5rem; color: var(--text-primary);">Prontuário Médico & Semáforo</h3>
+        <p style="color: var(--text-secondary); line-height: 1.6;">Substituímos carteiras de papel frágeis por registros digitais. O sistema avisa visualmente o status das doses para evitar revacinações.</p>
+      </div>
+    </div>
+
+    <div style="padding: 1.5rem; background: rgba(255,255,255,0.03); border: 1px solid var(--border-card); border-radius: 12px; display: flex; gap: 1rem; align-items: flex-start;">
+      <i class="fa-solid fa-shield-halved" style="font-size: 1.5rem; color: var(--primary); margin-top: 0.2rem;"></i>
+      <div>
+        <h3 style="font-size: 1.2rem; margin-bottom: 0.5rem; color: var(--text-primary);">Segurança Jurídica</h3>
+        <p style="color: var(--text-secondary); line-height: 1.6;">Verificações de documentos (como CPF) e geração automatizada do termo de adoção em PDF protegem legalmente os animais e os protetores.</p>
+      </div>
+    </div>
+  </div>
+
+  <p style="font-size: 1.1rem; line-height: 1.8; color: var(--text-secondary); text-align: justify;">
+    Acreditamos que a tecnologia deve servir de ponte para o afeto. Facilitando o trabalho de quem resgata, garantimos que mais animais encontrem lares amorosos e definitivos.
+  </p>
+</div>
+{% endblock %}

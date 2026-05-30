@@ -1,0 +1,262 @@
+{% extends "base.html" %}
+
+{% block title %}Painel do Administrador - PetMatch{% endblock %}
+
+{% block head %}
+<style>
+  .admin-grid {
+    display: grid;
+    grid-template-columns: 240px 1fr;
+    gap: 2rem;
+    margin-top: 1rem;
+  }
+  @media (max-width: 768px) {
+    .admin-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+  .sidebar-menu {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  .sidebar-item {
+    padding: 0.8rem 1.2rem;
+    border-radius: 8px;
+    color: var(--text-secondary);
+    text-decoration: none;
+    font-weight: 500;
+    transition: var(--transition);
+    cursor: pointer;
+    background: transparent;
+    border: none;
+    text-align: left;
+    font-family: var(--font-main);
+    font-size: 1rem;
+  }
+  .sidebar-item:hover, .sidebar-item.active {
+    color: var(--text-primary);
+    background: rgba(255, 255, 255, 0.05);
+  }
+  .sidebar-item.active {
+    border-left: 3px solid var(--primary);
+  }
+  .panel-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-card);
+    border-radius: 12px;
+    padding: 2rem;
+    backdrop-filter: blur(10px);
+    box-shadow: var(--shadow-premium);
+  }
+  .admin-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+    text-align: left;
+  }
+  .admin-table th, .admin-table td {
+    padding: 1rem;
+    border-bottom: 1px solid var(--border-card);
+  }
+  .admin-table th {
+    color: var(--text-secondary);
+    font-weight: 600;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .admin-table td {
+    color: var(--text-primary);
+    font-size: 0.95rem;
+  }
+  .tab-content {
+    display: none;
+  }
+  .tab-content.active {
+    display: block;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div>
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+    <div>
+      <h1 style="font-size: 2.2rem; font-weight: 800; background: linear-gradient(90deg, var(--primary), var(--secondary)); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;">Painel Administrativo</h1>
+      <p style="color: var(--text-secondary);">Controle global de usuários, animais cadastrados e auditoria de ações.</p>
+    </div>
+    <div style="background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.2); padding: 0.5rem 1rem; border-radius: 20px; color: var(--primary); font-weight: 600; font-size: 0.85rem;">
+      <i class="fa-solid fa-user-shield"></i> Administrador
+    </div>
+  </div>
+
+  <div class="admin-grid">
+    <!-- Sidebar -->
+    <div class="sidebar-menu">
+      <button class="sidebar-item active" onclick="switchTab('usuarios')">
+        <i class="fa-solid fa-users" style="width: 24px;"></i> Usuários ({{ usuarios|length }})
+      </button>
+      <button class="sidebar-item" onclick="switchTab('pets')">
+        <i class="fa-solid fa-paw" style="width: 24px;"></i> Animais ({{ pets|length }})
+      </button>
+      <button class="sidebar-item" onclick="switchTab('logs')">
+        <i class="fa-solid fa-clock-rotate-left" style="width: 24px;"></i> Logs de Sistema
+      </button>
+    </div>
+
+    <!-- Main Content Panel -->
+    <div class="panel-card">
+      
+      <!-- Tab Usuários -->
+      <div id="tab-usuarios" class="tab-content active">
+        <h2 style="font-size: 1.5rem; margin-bottom: 1rem; font-weight: 600;">Gerenciamento de Usuários</h2>
+        <div style="overflow-x: auto;">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>Nome</th>
+                <th>E-mail</th>
+                <th>CPF</th>
+                <th>Tipo</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for user in usuarios %}
+              <tr>
+                <td><strong>{{ user.nome }}</strong>{% if user.is_admin %} <span style="font-size: 0.75rem; color: var(--secondary); background: rgba(99,102,241,0.1); padding: 0.15rem 0.4rem; border-radius: 4px; margin-left: 0.2rem;">Admin</span>{% endif %}</td>
+                <td>{{ user.email }}</td>
+                <td>{{ user.cpf or '-' }}</td>
+                <td>
+                  {% if user.tipo == 'ONG' %}
+                    <span style="color: var(--primary); font-weight: 600;">ONG / Protetor</span>
+                  {% else %}
+                    <span style="color: var(--text-secondary);">Adotante</span>
+                  {% endif %}
+                </td>
+                <td>
+                  {% if not user.is_admin %}
+                    <form action="{{ url_for('deletar_usuario', id=user.id) }}" method="POST" style="display: inline;" onsubmit="return confirm('Tem certeza que deseja remover o usuário {{ user.nome }} permanentemente?');">
+                      <button type="submit" class="btn btn-outline" style="padding: 0.4rem 0.8rem; font-size: 0.8rem; color: var(--status-red); border-color: rgba(239, 68, 68, 0.2); background: transparent;">
+                        <i class="fa-solid fa-trash-can"></i> Excluir
+                      </button>
+                    </form>
+                  {% else %}
+                    <span style="font-size: 0.85rem; color: var(--text-secondary); font-style: italic;">Protegido</span>
+                  {% endif %}
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Tab Pets -->
+      <div id="tab-pets" class="tab-content">
+        <h2 style="font-size: 1.5rem; margin-bottom: 1rem; font-weight: 600;">Animais Cadastrados</h2>
+        <div style="overflow-x: auto;">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>Nome</th>
+                <th>Espécie</th>
+                <th>Porte</th>
+                <th>Status</th>
+                <th>ONG Responsável</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for pet in pets %}
+              <tr>
+                <td><strong>{{ pet.nome }}</strong></td>
+                <td>{{ pet.especie }}</td>
+                <td>{{ pet.porte }}</td>
+                <td>
+                  {% if pet.status == 'Disponivel' %}
+                    <span style="color: var(--status-green); font-weight: 600;">🟢 Disponível</span>
+                  {% elif pet.status == 'Negociacao' %}
+                    <span style="color: var(--status-yellow); font-weight: 600;">🟡 Em Negociação</span>
+                  {% else %}
+                    <span style="color: var(--text-secondary);">⚫ Doado</span>
+                  {% endif %}
+                </td>
+                <td>{{ pet.ong.nome }}</td>
+                <td>
+                  <form action="{{ url_for('deletar_animal', id=pet.id) }}" method="POST" style="display: inline;" onsubmit="return confirm('Tem certeza que deseja remover a publicação de {{ pet.nome }} permanentemente?');">
+                    <button type="submit" class="btn btn-outline" style="padding: 0.4rem 0.8rem; font-size: 0.8rem; color: var(--status-red); border-color: rgba(239, 68, 68, 0.2); background: transparent;">
+                      <i class="fa-solid fa-trash-can"></i> Remover
+                    </button>
+                  </form>
+                </td>
+              </tr>
+              {% else %}
+              <tr>
+                <td colspan="6" style="text-align: center; color: var(--text-secondary);">Nenhum animal cadastrado no momento.</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Tab Logs -->
+      <div id="tab-logs" class="tab-content">
+        <h2 style="font-size: 1.5rem; margin-bottom: 1rem; font-weight: 600;">Histórico de Logs de Auditoria</h2>
+        <div style="overflow-x: auto; max-height: 500px;">
+          <table class="admin-table">
+            <thead>
+              <tr>
+                <th>Data/Hora</th>
+                <th>Usuário</th>
+                <th>Ação Executada</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for log in logs %}
+              <tr>
+                <td style="font-size: 0.85rem; color: var(--text-secondary);">{{ log.data_hora.strftime('%d/%m/%Y %H:%M:%S') }}</td>
+                <td>
+                  {% if log.usuario %}
+                    <span style="font-weight: 600;">{{ log.usuario.nome }}</span> <span style="font-size: 0.8rem; color: var(--text-secondary);">({{ log.usuario.tipo }})</span>
+                  {% else %}
+                    <span style="color: var(--text-secondary); font-style: italic;">Sistema / Anônimo</span>
+                  {% endif %}
+                </td>
+                <td><code style="background: rgba(255,255,255,0.05); padding: 0.2rem 0.5rem; border-radius: 4px; font-family: monospace; color: var(--secondary);">{{ log.acao }}</code></td>
+              </tr>
+              {% else %}
+              <tr>
+                <td colspan="3" style="text-align: center; color: var(--text-secondary);">Nenhum log registrado.</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+  function switchTab(tabId) {
+    // Esconder todas as tabs
+    document.querySelectorAll('.tab-content').forEach(tab => {
+      tab.classList.remove('active');
+    });
+    // Desativar botões
+    document.querySelectorAll('.sidebar-item').forEach(btn => {
+      btn.classList.remove('active');
+    });
+    
+    // Ativar tab selecionada
+    document.getElementById('tab-' + tabId).classList.add('active');
+    
+    // Ativar botão clicado
+    event.currentTarget.classList.add('active');
+  }
+</script>
+{% endblock %}
