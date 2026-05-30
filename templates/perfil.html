@@ -328,11 +328,16 @@
       <i class="fa-solid fa-user"></i> Meu Perfil
     </button>
     <button class="profile-tab" data-tab="animais" id="tab-animais">
-      <i class="fa-solid fa-paw"></i> Meus Animais
-      {% if current_user.tipo in ['ONG', 'PROTETOR'] and meus_pets %}
-        <span class="tab-badge">{{ meus_pets | length }}</span>
-      {% elif current_user.tipo == 'ADOTANTE' and (meus_favoritos or minhas_candidaturas_pets) %}
-        <span class="tab-badge">{{ (meus_favoritos | length) + (minhas_candidaturas_pets | length) }}</span>
+      {% if current_user.tipo in ['ONG', 'PROTETOR'] %}
+        <i class="fa-solid fa-paw"></i> Meus Animais
+        {% if meus_pets %}
+          <span class="tab-badge">{{ meus_pets | length }}</span>
+        {% endif %}
+      {% else %}
+        <i class="fa-solid fa-heart"></i> Minha Atividade
+        {% if meus_favoritos or minhas_candidaturas_pets or meus_pets %}
+          <span class="tab-badge">{{ (meus_favoritos | length) + (minhas_candidaturas_pets | length) + (meus_pets | length) }}</span>
+        {% endif %}
       {% endif %}
     </button>
   </div>
@@ -409,25 +414,34 @@
           </div>
           <div class="meus-pets-grid">
             {% for pet in meus_pets %}
-              <a href="{{ url_for('detalhes_animal', id=pet.id) }}" class="meu-pet-card" style="text-decoration: none; color: inherit;">
-                <div class="meu-pet-img">
-                  {% if pet.foto_url %}
-                    <img src="{{ url_for('static', filename='uploads/' + pet.foto_url) }}" alt="{{ pet.nome }}">
-                  {% else %}
-                    <div style="height: 100%; display: flex; align-items: center; justify-content: center; background: #1e293b;">
-                      <i class="fa-solid fa-paw" style="font-size: 2rem; color: var(--text-secondary); opacity: 0.3;"></i>
-                    </div>
-                  {% endif %}
-                  <span class="meu-pet-status {% if pet.status == 'Disponivel' %}status-disp{% elif pet.status == 'Negociacao' %}status-neg{% else %}status-doado{% endif %}">
-                    {% if pet.status == 'Disponivel' %}Disponível{% elif pet.status == 'Negociacao' %}Em Negociação{% else %}Doado{% endif %}
-                  </span>
-                </div>
-                <div class="meu-pet-info">
-                  <h3>{{ pet.nome }}</h3>
-                  <p>{{ pet.especie }} • {{ pet.porte }} • {{ pet.sexo }}</p>
-                  <span class="meu-pet-date"><i class="fa-regular fa-calendar"></i> {{ pet.data_cadastro.strftime('%d/%m/%Y') }}</span>
-                </div>
-              </a>
+              <div style="display: flex; flex-direction: column; background: rgba(255, 255, 255, 0.02); border: 1px solid var(--border-card); border-radius: 12px; overflow: hidden; transition: var(--transition);">
+                <a href="{{ url_for('detalhes_animal', id=pet.id) }}" class="meu-pet-card" style="text-decoration: none; color: inherit; flex: 1;">
+                  <div class="meu-pet-img">
+                    {% if pet.foto_url %}
+                      <img src="{{ url_for('static', filename='uploads/' + pet.foto_url) }}" alt="{{ pet.nome }}">
+                    {% else %}
+                      <div style="height: 100%; display: flex; align-items: center; justify-content: center; background: #1e293b;">
+                        <i class="fa-solid fa-paw" style="font-size: 2rem; color: var(--text-secondary); opacity: 0.3;"></i>
+                      </div>
+                    {% endif %}
+                    <span class="meu-pet-status {% if pet.status == 'Disponivel' %}status-disp{% elif pet.status == 'Negociacao' %}status-neg{% else %}status-doado{% endif %}">
+                      {% if pet.status == 'Disponivel' %}Disponível{% elif pet.status == 'Negociacao' %}Em Negociação{% else %}Doado{% endif %}
+                    </span>
+                  </div>
+                  <div class="meu-pet-info" style="padding: 0.85rem 0.85rem 0.5rem 0.85rem;">
+                    <h3>{{ pet.nome }}</h3>
+                    <p>{{ pet.especie }} • {{ pet.porte }} • {{ pet.sexo }}</p>
+                    <span class="meu-pet-date"><i class="fa-regular fa-calendar"></i> {{ pet.data_cadastro.strftime('%d/%m/%Y') }}</span>
+                  </div>
+                </a>
+                {% if pet.status != 'Doado' %}
+                  <form action="{{ url_for('marcar_adotado', id=pet.id) }}" method="POST" style="padding: 0.5rem 0.85rem 0.85rem 0.85rem; border-top: 1px solid var(--border-card);">
+                    <button type="submit" class="btn btn-primary" style="width: 100%; padding: 0.4rem; font-size: 0.8rem; height: auto; display: inline-flex; align-items: center; justify-content: center; gap: 0.3rem;">
+                      <i class="fa-solid fa-heart-circle-check"></i> Já foi Adotado
+                    </button>
+                  </form>
+                {% endif %}
+              </div>
             {% endfor %}
           </div>
         </div>
@@ -442,7 +456,53 @@
       {% endif %}
 
     {% else %}
-      <!-- Adotante: Candidaturas + Favoritos -->
+      <!-- Adotante: Candidaturas + Favoritos + Pets Cadastrados -->
+
+      <!-- Animais que cadastrou para adoção (se houver) -->
+      {% if meus_pets %}
+        <div class="profile-header-card" style="flex-direction: column; align-items: stretch; gap: 1.5rem;">
+          <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-card); padding-bottom: 0.8rem;">
+            <h2 style="font-size: 1.4rem; font-weight: 700; margin: 0;">
+              <i class="fa-solid fa-paw" style="color: var(--primary);"></i> Animais que Cadastrei
+            </h2>
+            <a href="{{ url_for('cadastrar_pet') }}" class="btn btn-primary" style="padding: 0.4rem 1rem; font-size: 0.85rem;">
+              <i class="fa-solid fa-plus"></i> Novo Pet
+            </a>
+          </div>
+          <div class="meus-pets-grid">
+            {% for pet in meus_pets %}
+              <div style="display: flex; flex-direction: column; background: rgba(255, 255, 255, 0.02); border: 1px solid var(--border-card); border-radius: 12px; overflow: hidden; transition: var(--transition);">
+                <a href="{{ url_for('detalhes_animal', id=pet.id) }}" class="meu-pet-card" style="text-decoration: none; color: inherit; flex: 1;">
+                  <div class="meu-pet-img">
+                    {% if pet.foto_url %}
+                      <img src="{{ url_for('static', filename='uploads/' + pet.foto_url) }}" alt="{{ pet.nome }}">
+                    {% else %}
+                      <div style="height: 100%; display: flex; align-items: center; justify-content: center; background: #1e293b;">
+                        <i class="fa-solid fa-paw" style="font-size: 2rem; color: var(--text-secondary); opacity: 0.3;"></i>
+                      </div>
+                    {% endif %}
+                    <span class="meu-pet-status {% if pet.status == 'Disponivel' %}status-disp{% elif pet.status == 'Negociacao' %}status-neg{% else %}status-doado{% endif %}">
+                      {% if pet.status == 'Disponivel' %}Disponível{% elif pet.status == 'Negociacao' %}Em Negociação{% else %}Doado{% endif %}
+                    </span>
+                  </div>
+                  <div class="meu-pet-info" style="padding: 0.85rem 0.85rem 0.5rem 0.85rem;">
+                    <h3>{{ pet.nome }}</h3>
+                    <p>{{ pet.especie }} • {{ pet.porte }} • {{ pet.sexo }}</p>
+                    <span class="meu-pet-date"><i class="fa-regular fa-calendar"></i> {{ pet.data_cadastro.strftime('%d/%m/%Y') }}</span>
+                  </div>
+                </a>
+                {% if pet.status != 'Doado' %}
+                  <form action="{{ url_for('marcar_adotado', id=pet.id) }}" method="POST" style="padding: 0.5rem 0.85rem 0.85rem 0.85rem; border-top: 1px solid var(--border-card);">
+                    <button type="submit" class="btn btn-primary" style="width: 100%; padding: 0.4rem; font-size: 0.8rem; height: auto; display: inline-flex; align-items: center; justify-content: center; gap: 0.3rem;">
+                      <i class="fa-solid fa-heart-circle-check"></i> Já foi Adotado
+                    </button>
+                  </form>
+                {% endif %}
+              </div>
+            {% endfor %}
+          </div>
+        </div>
+      {% endif %}
 
       <!-- Animais que se candidatou -->
       {% if minhas_candidaturas_pets %}
@@ -506,13 +566,18 @@
         </div>
       {% endif %}
 
-      {% if not meus_favoritos and not minhas_candidaturas_pets %}
+      {% if not meus_favoritos and not minhas_candidaturas_pets and not meus_pets %}
         <div class="profile-header-card" style="flex-direction: column; align-items: center; gap: 1.5rem; padding: 3rem;">
           <i class="fa-solid fa-paw" style="font-size: 3rem; color: var(--text-secondary); opacity: 0.3;"></i>
-          <p style="color: var(--text-secondary); font-size: 1.1rem; margin: 0;">Você ainda não tem animais favoritados ou candidaturas.</p>
-          <a href="{{ url_for('catalogo') }}" class="btn btn-primary">
-            <i class="fa-solid fa-search"></i> Explorar Animais
-          </a>
+          <p style="color: var(--text-secondary); font-size: 1.1rem; margin: 0;">Você ainda não tem animais favoritados, candidaturas ou cadastrados.</p>
+          <div style="display: flex; gap: 1rem;">
+            <a href="{{ url_for('catalogo') }}" class="btn btn-primary">
+              <i class="fa-solid fa-search"></i> Explorar Animais
+            </a>
+            <a href="{{ url_for('cadastrar_pet') }}" class="btn btn-secondary">
+              <i class="fa-solid fa-plus"></i> Cadastrar Pet
+            </a>
+          </div>
         </div>
       {% endif %}
     {% endif %}

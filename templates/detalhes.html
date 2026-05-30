@@ -9,18 +9,55 @@
     grid-template-columns: 400px 1fr;
     gap: 3rem;
     margin-top: 2rem;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
   }
+
   @media (max-width: 900px) {
     .details-container {
       grid-template-columns: 1fr;
-      gap: 2rem;
+      gap: 1.5rem;
+      padding: 0;
+    }
+
+    .pet-image-card img {
+      height: 300px;
+    }
+
+    .details-right {
+      padding: 1.25rem !important;
+    }
+
+    .pet-name-title {
+      font-size: 2rem;
+    }
+
+    .pet-info-grid {
+      grid-template-columns: 1fr;
+      gap: 1rem;
+    }
+
+    .details-actions-card {
+      padding: 1.25rem !important;
+    }
+
+    .breadcrumbs {
+      font-size: 0.8rem !important;
+      margin-bottom: 1rem !important;
+      flex-wrap: wrap;
     }
   }
+
   .details-left {
     display: flex;
     flex-direction: column;
     gap: 1.5rem;
+    min-width: 0;
+    width: 100%;
+    box-sizing: border-box;
   }
+
   .pet-image-card {
     background: var(--bg-card);
     border: 1px solid var(--border-card);
@@ -28,13 +65,19 @@
     overflow: hidden;
     box-shadow: var(--shadow-premium);
     position: relative;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
   }
+
   .pet-image-card img {
     width: 100%;
     height: 400px;
     object-fit: cover;
     display: block;
+    max-width: 100%;
   }
+
   .pet-badge-large {
     position: absolute;
     top: 15px;
@@ -45,7 +88,7 @@
     font-weight: 700;
     backdrop-filter: blur(10px);
   }
-  
+
   .details-right {
     background: var(--bg-card);
     border: 1px solid var(--border-card);
@@ -55,6 +98,23 @@
     display: flex;
     flex-direction: column;
     gap: 2rem;
+    min-width: 0;
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .details-actions-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-card);
+    border-radius: 16px;
+    padding: 1.5rem;
+    box-shadow: var(--shadow-premium);
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
   }
 
   .pet-title-section {
@@ -125,7 +185,8 @@
     margin-top: 0.5rem;
   }
 
-  .vaccine-table th, .vaccine-table td {
+  .vaccine-table th,
+  .vaccine-table td {
     padding: 0.75rem 1rem;
     text-align: left;
     border-bottom: 1px solid var(--border-card);
@@ -150,9 +211,17 @@
     font-weight: 600;
   }
 
-  .dot-green { background-color: var(--status-green); }
-  .dot-yellow { background-color: var(--status-yellow); }
-  .dot-red { background-color: var(--status-red); }
+  .dot-green {
+    background-color: var(--status-green);
+  }
+
+  .dot-yellow {
+    background-color: var(--status-yellow);
+  }
+
+  .dot-red {
+    background-color: var(--status-red);
+  }
 
   .ong-card {
     background: rgba(99, 102, 241, 0.05);
@@ -207,80 +276,93 @@
 </div>
 
 <div class="details-container">
-  
+
   <!-- Coluna Esquerda: Imagem e Ações Rápidas -->
   <div class="details-left">
     <div class="pet-image-card">
       {% if pet.foto_url %}
-        <img src="{{ url_for('static', filename='uploads/' + pet.foto_url) }}" alt="Foto de {{ pet.nome }}">
+      <img src="{{ url_for('static', filename='uploads/' + pet.foto_url) }}" alt="Foto de {{ pet.nome }}">
       {% else %}
-        <div style="height: 400px; background: #1e293b; display: flex; align-items: center; justify-content: center;">
-          <i class="fa-solid fa-paw" style="font-size: 6rem; color: var(--text-secondary); opacity: 0.3;"></i>
-        </div>
+      <div style="height: 400px; background: #1e293b; display: flex; align-items: center; justify-content: center;">
+        <i class="fa-solid fa-paw" style="font-size: 6rem; color: var(--text-secondary); opacity: 0.3;"></i>
+      </div>
       {% endif %}
-      
+
       {% if pet.status == 'Disponivel' %}
-        <span class="pet-badge-large status-disponivel">Disponível</span>
+      <span class="pet-badge-large status-disponivel">Disponível</span>
+      {% elif pet.status == 'Doado' %}
+      <span class="pet-badge-large status-doado"
+        style="background: rgba(99, 102, 241, 0.25); color: var(--secondary); border: 1px solid rgba(99, 102, 241, 0.35);">Adotado!
+        🎉</span>
       {% else %}
-        <span class="pet-badge-large status-negociacao">Em Negociação</span>
+      <span class="pet-badge-large status-negociacao">Em Negociação</span>
       {% endif %}
     </div>
 
     <!-- Botões de Ação -->
     <div style="display: flex; flex-direction: column; gap: 0.75rem;">
       {% if pet.status == 'Disponivel' %}
-        {% if ja_candidatado %}
-          <button class="btn btn-outline" style="width: 100%; cursor: not-allowed; opacity: 0.8;" disabled>
-            <i class="fa-solid fa-circle-check" style="color: var(--status-green);"></i> Candidatura Enviada
-          </button>
-        {% else %}
-          <form action="{{ url_for('candidatar_animal', id=pet.id) }}" method="POST" style="width: 100%;">
-            <button type="submit" class="btn btn-primary" style="width: 100%; padding: 0.8rem;">
-              <i class="fa-solid fa-heart"></i> Quero Adotar
-            </button>
-          </form>
-        {% endif %}
+      {% if ja_candidatado %}
+      <button class="btn btn-outline" style="width: 100%; cursor: not-allowed; opacity: 0.8;" disabled>
+        <i class="fa-solid fa-circle-check" style="color: var(--status-green);"></i> Candidatura Enviada
+      </button>
+      {% else %}
+      <form action="{{ url_for('candidatar_animal', id=pet.id) }}" method="POST" style="width: 100%;">
+        <button type="submit" class="btn btn-primary" style="width: 100%; padding: 0.8rem;">
+          <i class="fa-solid fa-heart"></i> Quero Adotar
+        </button>
+      </form>
+      {% endif %}
+      {% elif pet.status == 'Doado' %}
+      <button class="btn btn-outline" style="width: 100%; cursor: not-allowed; opacity: 0.8;" disabled>
+        <i class="fa-solid fa-heart-circle-check" style="color: var(--secondary);"></i> Este pet já foi adotado! 🎉
+      </button>
       {% endif %}
 
+      {% if pet.status != 'Doado' %}
       <form action="{{ url_for('favoritar_animal', id=pet.id) }}" method="POST" style="width: 100%;">
         <button type="submit" class="btn btn-outline" style="width: 100%; padding: 0.8rem;">
           {% if ja_favorito %}
-            <i class="fa-solid fa-star" style="color: #f59e0b;"></i> Remover dos Favoritos
+          <i class="fa-solid fa-star" style="color: #f59e0b;"></i> Remover dos Favoritos
           {% else %}
-            <i class="fa-regular fa-star"></i> Favoritar Animal
+          <i class="fa-regular fa-star"></i> Favoritar Animal
           {% endif %}
         </button>
       </form>
 
       {% if pet.ong.whatsapp %}
-        <a href="https://wa.me/{{ pet.ong.whatsapp }}?text=Ol%C3%A1%21+Tenho+interesse+em+saber+mais+sobre+o+pet+{{ pet.nome }}+que+vi+no+PetMatch." 
-           target="_blank" class="btn btn-secondary" style="width: 100%; padding: 0.8rem; background-color: #25d366 !important; border-color: #25d366 !important; color: white !important;">
-          <i class="fa-brands fa-whatsapp"></i> Conversar com a ONG
-        </a>
+      <a href="https://wa.me/{{ pet.ong.whatsapp }}?text=Ol%C3%A1%21+Tenho+interesse+em+saber+mais+sobre+o+pet+{{ pet.nome }}+que+vi+no+PetMatch."
+        target="_blank" class="btn btn-secondary"
+        style="width: 100%; padding: 0.8rem; background-color: #25d366 !important; border-color: #25d366 !important; color: white !important;">
+        <i class="fa-brands fa-whatsapp"></i> Conversar com a ONG
+      </a>
       {% endif %}
 
       {% if current_user.is_authenticated and (current_user.is_admin or current_user.id == pet.ong_id) %}
-        <form action="{{ url_for('deletar_animal', id=pet.id) }}" method="POST" style="width: 100%;" onsubmit="return confirm('Tem certeza que deseja remover esta publicação permanentemente?');">
-          <button type="submit" class="btn btn-outline" style="width: 100%; padding: 0.8rem; color: var(--status-red) !important; border-color: var(--status-red) !important; background: transparent !important;">
-            <i class="fa-solid fa-trash-can"></i> Remover Publicação
-          </button>
-        </form>
+      <form action="{{ url_for('deletar_animal', id=pet.id) }}" method="POST" style="width: 100%;"
+        onsubmit="return confirm('Tem certeza que deseja remover esta publicação permanentemente?');">
+        <button type="submit" class="btn btn-outline"
+          style="width: 100%; padding: 0.8rem; color: var(--status-red) !important; border-color: var(--status-red) !important; background: transparent !important;">
+          <i class="fa-solid fa-trash-can"></i> Remover Publicação
+        </button>
+      </form>
+      {% endif %}
       {% endif %}
     </div>
   </div>
 
   <!-- Coluna Direita: Informações Detalhadas -->
   <div class="details-right">
-    
+
     <!-- Cabeçalho do Pet -->
     <div class="pet-title-section">
       <div>
         <div style="display: flex; align-items: center; gap: 1rem;">
           <h1 class="pet-name-title" style="margin: 0;">{{ pet.nome }}</h1>
           {% if pet.sexo == 'Macho' %}
-            <i class="fa-solid fa-mars sex-macho" style="font-size: 1.8rem;" title="Macho"></i>
+          <i class="fa-solid fa-mars sex-macho" style="font-size: 1.8rem;" title="Macho"></i>
           {% else %}
-            <i class="fa-solid fa-venus sex-femea" style="font-size: 1.8rem;" title="Fêmea"></i>
+          <i class="fa-solid fa-venus sex-femea" style="font-size: 1.8rem;" title="Fêmea"></i>
           {% endif %}
         </div>
         <p style="color: var(--text-secondary); font-size: 1.1rem; margin-top: 0.25rem;">
@@ -307,113 +389,125 @@
 
     <!-- Tags de Personalidade -->
     {% if pet.tags %}
-      <div>
-        <div class="section-title"><i class="fa-solid fa-tags" style="color: var(--primary);"></i> Personalidade</div>
-        <div class="pet-tags">
-          {% for t in pet.tags %}
-            <span class="tag-pill">{{ t }}</span>
-          {% endfor %}
-        </div>
+    <div>
+      <div class="section-title"><i class="fa-solid fa-tags" style="color: var(--primary);"></i> Personalidade</div>
+      <div class="pet-tags">
+        {% for t in pet.tags %}
+        <span class="tag-pill">{{ t }}</span>
+        {% endfor %}
       </div>
+    </div>
     {% endif %}
 
     <!-- Biografia do Pet (Gerada Dinamicamente) -->
     <div>
       <div class="section-title"><i class="fa-solid fa-circle-info" style="color: var(--primary);"></i> Sobre mim</div>
       <p style="line-height: 1.6; font-size: 1.1rem; color: var(--text-primary);">
-        Olá! Eu sou o <strong>{{ pet.nome }}</strong>, um lindo {{ pet.especie | lower }} de porte {{ pet.porte | lower }}. 
+        Olá! Eu sou o <strong>{{ pet.nome }}</strong>, um lindo {{ pet.especie | lower }} de porte {{ pet.porte | lower
+        }}.
         {% if pet.tags %}
-          Meus protetores me descrevem como um pet muito 
-          {% for t in pet.tags %}
-            {% if loop.last and not loop.first %} e {% elif not loop.first %}, {% endif %}<strong>{{ t | lower }}</strong>
-          {% endfor %}.
+        Meus protetores me descrevem como um pet muito
+        {% for t in pet.tags %}
+        {% if loop.last and not loop.first %} e {% elif not loop.first %}, {% endif %}<strong>{{ t | lower }}</strong>
+        {% endfor %}.
         {% endif %}
-        Atualmente meu status é <em>"{{ pet.status }}"</em>. Estou sob a proteção da ONG/Protetor e adoraria ter a chance de fazer parte da sua família! Se você procura um companheiro fiel, vamos dar um match!
+        Atualmente meu status é <em>"{{ pet.status }}"</em>. Estou sob a proteção da ONG/Protetor e adoraria ter a
+        chance de fazer parte da sua família! Se você procura um companheiro fiel, vamos dar um match!
       </p>
     </div>
 
     <!-- Tabela de Vacinação -->
     <div>
-      <div class="section-title"><i class="fa-solid fa-briefcase-medical" style="color: var(--primary);"></i> Prontuário de Vacinação</div>
+      <div class="section-title"><i class="fa-solid fa-briefcase-medical" style="color: var(--primary);"></i> Prontuário
+        de Vacinação</div>
       {% if pet.vacinas %}
-        <div style="overflow-x: auto;">
-          <table class="vaccine-table">
-            <thead>
-              <tr>
-                <th>Vacina</th>
-                <th>Data da Aplicação</th>
-                <th>Próxima Dose</th>
-                <th>Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              {% for vacina in pet.vacinas %}
-                <tr>
-                  <td><strong>{{ vacina.nome_vacina }}</strong></td>
-                  <td>{{ vacina.data_aplicacao.strftime('%d/%m/%Y') }}</td>
-                  <td>
-                    {% if vacina.data_proxima_dose %}
-                      {{ vacina.data_proxima_dose.strftime('%d/%m/%Y') }}
-                    {% else %}
-                      Dose única / Não requer
-                    {% endif %}
-                  </td>
-                  <td>
-                    {% if vacina.status_vacina == 'verde' %}
-                      <span class="status-indicator"><span class="semaphore-dot dot-green"></span> Em dia</span>
-                    {% elif vacina.status_vacina == 'amarelo' %}
-                      <span class="status-indicator"><span class="semaphore-dot dot-yellow"></span> Vence em breve</span>
-                    {% else %}
-                      <span class="status-indicator"><span class="semaphore-dot dot-red"></span> Atrasada</span>
-                    {% endif %}
-                  </td>
-                </tr>
-              {% endfor %}
-            </tbody>
-          </table>
-        </div>
+      <div style="overflow-x: auto;">
+        <table class="vaccine-table">
+          <thead>
+            <tr>
+              <th>Vacina</th>
+              <th>Data da Aplicação</th>
+              <th>Próxima Dose</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for vacina in pet.vacinas %}
+            <tr>
+              <td><strong>{{ vacina.nome_vacina }}</strong></td>
+              <td>{{ vacina.data_aplicacao.strftime('%d/%m/%Y') }}</td>
+              <td>
+                {% if vacina.data_proxima_dose %}
+                {{ vacina.data_proxima_dose.strftime('%d/%m/%Y') }}
+                {% else %}
+                Dose única / Não requer
+                {% endif %}
+              </td>
+              <td>
+                {% if vacina.status_vacina == 'verde' %}
+                <span class="status-indicator"><span class="semaphore-dot dot-green"></span> Em dia</span>
+                {% elif vacina.status_vacina == 'amarelo' %}
+                <span class="status-indicator"><span class="semaphore-dot dot-yellow"></span> Vence em breve</span>
+                {% else %}
+                <span class="status-indicator"><span class="semaphore-dot dot-red"></span> Atrasada</span>
+                {% endif %}
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
       {% else %}
-        <div style="background: rgba(255, 255, 255, 0.02); border: 1px solid var(--border-card); border-radius: 8px; padding: 1.5rem; text-align: center; color: var(--text-secondary);">
-          <i class="fa-solid fa-circle-exclamation" style="font-size: 1.5rem; margin-bottom: 0.5rem; opacity: 0.6;"></i>
-          <p>Nenhuma vacina cadastrada até o momento para este animal.</p>
-        </div>
+      <div
+        style="background: rgba(255, 255, 255, 0.02); border: 1px solid var(--border-card); border-radius: 8px; padding: 1.5rem; text-align: center; color: var(--text-secondary);">
+        <i class="fa-solid fa-circle-exclamation" style="font-size: 1.5rem; margin-bottom: 0.5rem; opacity: 0.6;"></i>
+        <p>Nenhuma vacina cadastrada até o momento para este animal.</p>
+      </div>
       {% endif %}
 
-      <!-- Form para Adicionar Vacina (se for a ONG dona do pet) -->
-      {% if current_user.is_authenticated and current_user.id == pet.ong_id %}
-        <div style="margin-top: 1.5rem; padding: 1.5rem; background: rgba(255, 255, 255, 0.02); border: 1px solid var(--border-card); border-radius: 12px;">
-          <div style="font-weight: 700; margin-bottom: 1rem; color: var(--text-primary); font-size: 1.05rem;">
-            <i class="fa-solid fa-plus-circle" style="color: var(--primary);"></i> Adicionar Vacina ao Prontuário
-          </div>
-          <form action="{{ url_for('adicionar_vacina', id=pet.id) }}" method="POST" style="display: flex; flex-direction: column; gap: 1rem;">
-            <div class="vaccine-form-grid">
-              <div style="display: flex; flex-direction: column; gap: 0.25rem;">
-                <label for="nome_vacina" style="font-size: 0.8rem; color: var(--text-secondary); font-weight: 600;">Nome da Vacina</label>
-                <input type="text" id="nome_vacina" name="nome_vacina" placeholder="Ex: Antirrábica, V8, V10" required 
-                       style="background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border-card); padding: 0.5rem 0.8rem; border-radius: 6px; color: var(--text-primary); font-family: var(--font-main);">
-              </div>
-              <div style="display: flex; flex-direction: column; gap: 0.25rem;">
-                <label for="data_aplicacao" style="font-size: 0.8rem; color: var(--text-secondary); font-weight: 600;">Data de Aplicação</label>
-                <input type="date" id="data_aplicacao" name="data_aplicacao" required 
-                       style="background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border-card); padding: 0.5rem 0.8rem; border-radius: 6px; color: var(--text-primary); font-family: var(--font-main);">
-              </div>
-              <div style="display: flex; flex-direction: column; gap: 0.25rem;">
-                <label for="data_proxima_dose" style="font-size: 0.8rem; color: var(--text-secondary); font-weight: 600;">Próxima Dose (Opcional)</label>
-                <input type="date" id="data_proxima_dose" name="data_proxima_dose" 
-                       style="background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border-card); padding: 0.5rem 0.8rem; border-radius: 6px; color: var(--text-primary); font-family: var(--font-main);">
-              </div>
-            </div>
-            <button type="submit" class="btn btn-primary" style="padding: 0.5rem 1rem; font-size: 0.9rem; align-self: flex-end; height: 38px;">
-              <i class="fa-solid fa-plus"></i> Registrar Vacina
-            </button>
-          </form>
+      <!-- Form para Adicionar Vacina (se for a ONG dona do pet e não estiver adotado) -->
+      {% if current_user.is_authenticated and current_user.id == pet.ong_id and pet.status != 'Doado' %}
+      <div
+        style="margin-top: 1.5rem; padding: 1.5rem; background: rgba(255, 255, 255, 0.02); border: 1px solid var(--border-card); border-radius: 12px;">
+        <div style="font-weight: 700; margin-bottom: 1rem; color: var(--text-primary); font-size: 1.05rem;">
+          <i class="fa-solid fa-plus-circle" style="color: var(--primary);"></i> Adicionar Vacina ao Prontuário
         </div>
+        <form action="{{ url_for('adicionar_vacina', id=pet.id) }}" method="POST"
+          style="display: flex; flex-direction: column; gap: 1rem;">
+          <div class="vaccine-form-grid">
+            <div style="display: flex; flex-direction: column; gap: 0.25rem;">
+              <label for="nome_vacina" style="font-size: 0.8rem; color: var(--text-secondary); font-weight: 600;">Nome
+                da Vacina</label>
+              <input type="text" id="nome_vacina" name="nome_vacina" placeholder="Ex: Antirrábica, V8, V10" required
+                style="background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border-card); padding: 0.5rem 0.8rem; border-radius: 6px; color: var(--text-primary); font-family: var(--font-main);">
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 0.25rem;">
+              <label for="data_aplicacao"
+                style="font-size: 0.8rem; color: var(--text-secondary); font-weight: 600;">Data de Aplicação</label>
+              <input type="date" id="data_aplicacao" name="data_aplicacao" required
+                style="background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border-card); padding: 0.5rem 0.8rem; border-radius: 6px; color: var(--text-primary); font-family: var(--font-main);">
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 0.25rem;">
+              <label for="data_proxima_dose"
+                style="font-size: 0.8rem; color: var(--text-secondary); font-weight: 600;">Próxima Dose
+                (Opcional)</label>
+              <input type="date" id="data_proxima_dose" name="data_proxima_dose"
+                style="background: rgba(15, 23, 42, 0.6); border: 1px solid var(--border-card); padding: 0.5rem 0.8rem; border-radius: 6px; color: var(--text-primary); font-family: var(--font-main);">
+            </div>
+          </div>
+          <button type="submit" class="btn btn-primary"
+            style="padding: 0.5rem 1rem; font-size: 0.9rem; align-self: flex-end; height: 38px;">
+            <i class="fa-solid fa-plus"></i> Registrar Vacina
+          </button>
+        </form>
+      </div>
       {% endif %}
     </div>
 
     <!-- Card da ONG Responsável -->
     <div class="ong-card">
-      <div style="font-weight: 700; font-size: 1.1rem; color: var(--text-primary); display: flex; align-items: center; gap: 0.5rem;">
+      <div
+        style="font-weight: 700; font-size: 1.1rem; color: var(--text-primary); display: flex; align-items: center; gap: 0.5rem;">
         <i class="fa-solid fa-house-chimney-window" style="color: var(--secondary);"></i> Responsável pelo resgate
       </div>
       <div>
@@ -421,7 +515,7 @@
         <div style="font-size: 0.9rem; color: var(--text-secondary); margin-top: 0.25rem;">
           <i class="fa-regular fa-envelope"></i> {{ pet.ong.email }}
           {% if pet.ong.whatsapp %}
-            &nbsp;&bull;&nbsp; <i class="fa-solid fa-phone"></i> WhatsApp: {{ pet.ong.whatsapp }}
+          &nbsp;&bull;&nbsp; <i class="fa-solid fa-phone"></i> WhatsApp: {{ pet.ong.whatsapp }}
           {% endif %}
         </div>
       </div>

@@ -46,6 +46,13 @@
     </div>
   </div>
 
+  <div id="reset-warning" style="display: none; align-items: center; gap: 0.8rem; background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.2); border-left: 4px solid var(--status-yellow); padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem; color: var(--text-primary); font-size: 0.9rem; line-height: 1.4;">
+    <i class="fa-solid fa-circle-exclamation" style="color: var(--status-yellow); font-size: 1.1rem; flex-shrink: 0;"></i>
+    <div>
+      <strong>Recuperação de Senha Indisponível:</strong> Como este site é um protótipo acadêmico, o serviço de redefinição de senha está desativado.
+    </div>
+  </div>
+
   <form action="{{ url_for('login') }}" method="POST">
     
     <div class="form-group">
@@ -56,7 +63,7 @@
     <div class="form-group">
       <div style="display: flex; justify-content: space-between; align-items: center;">
         <label for="senha">Senha</label>
-        <!-- <a href="#" style="color: var(--primary); text-decoration: none; font-size: 0.85rem; font-weight: 600;">Esqueceu a senha?</a> -->
+        <a href="javascript:void(0)" onclick="mostrarAvisoReset()" style="color: var(--text-secondary); text-decoration: none; font-size: 0.85rem; font-weight: 500; transition: var(--transition);" onmouseover="this.style.color='var(--primary)'" onmouseout="this.style.color='var(--text-secondary)'">Esqueceu a senha?</a>
       </div>
       <input type="password" id="senha" name="senha" placeholder="Digite sua senha" required autocomplete="current-password">
     </div>
@@ -70,4 +77,18 @@
     Ainda não tem uma conta? <a href="{{ url_for('registrar') }}" style="color: var(--secondary); text-decoration: none; font-weight: 600;">Cadastre-se</a>
   </div>
 </div>
+
+<script>
+  function mostrarAvisoReset() {
+    const aviso = document.getElementById('reset-warning');
+    if (aviso) {
+      aviso.style.display = 'flex';
+      aviso.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      // Esconder automaticamente após 8 segundos
+      setTimeout(() => {
+        aviso.style.display = 'none';
+      }, 8000);
+    }
+  }
+</script>
 {% endblock %}

@@ -151,10 +151,10 @@
             </h3>
           </div>
           <p class="conversa-interlocutor">
-            {% if current_user.tipo in ['ONG', 'PROTETOR'] %}
+            {% if current_user.id == conv.candidatura.animal.ong_id %}
               Adotante: <strong>{{ conv.candidatura.adotante.nome }}</strong>
             {% else %}
-              Protetor: <strong>{{ conv.candidatura.animal.ong.nome }}</strong>
+              Dono/Protetor: <strong>{{ conv.candidatura.animal.ong.nome }}</strong>
             {% endif %}
           </p>
           {% if conv.ultima_mensagem %}
@@ -181,7 +181,7 @@
       <i class="fa-regular fa-comments" style="font-size: 3rem; color: var(--text-secondary); opacity: 0.4; margin-bottom: 1rem;"></i>
       <p style="font-size: 1.1rem; color: var(--text-secondary); margin-bottom: 0.75rem;">Você ainda não tem conversas ativas.</p>
       <p style="font-size: 0.9rem; color: var(--text-secondary); opacity: 0.7;">
-        As conversas são abertas automaticamente quando uma candidatura de adoção é aprovada.
+        As conversas são iniciadas assim que uma solicitação de adoção é enviada.
       </p>
     </div>
   {% endif %}

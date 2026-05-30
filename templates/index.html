@@ -262,6 +262,83 @@
 </section>
 {% endif %}
 
+{% if adotados %}
+<section class="carousel-section" style="margin-top: 3rem;">
+  <h2>Nossos <span>Últimos Adotados</span> 🎉</h2>
+  <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">Estes pets já encontraram um lar amoroso! ❤️</p>
+  
+  <div class="carousel-container">
+    <div class="carousel-track">
+      
+      <!-- Primeiro loop para renderizar os cards dos adotados -->
+      {% for pet in adotados %}
+        <div class="carousel-card" style="opacity: 0.9;">
+          <div class="carousel-img-wrapper" style="position: relative;">
+            {% if pet.foto_url %}
+              <img src="{{ url_for('static', filename='uploads/' + pet.foto_url) }}" alt="Foto de {{ pet.nome }}" style="filter: grayscale(20%);">
+            {% else %}
+              <i class="fa-solid fa-paw carousel-placeholder"></i>
+            {% endif %}
+            <span style="position: absolute; top: 10px; right: 10px; background: rgba(99, 102, 241, 0.9); color: white; padding: 0.2rem 0.6rem; border-radius: 20px; font-size: 0.75rem; font-weight: bold; backdrop-filter: blur(5px);">
+              Adotado
+            </span>
+          </div>
+          <div class="carousel-info">
+            <div class="carousel-header">
+              <span class="carousel-name">{{ pet.nome }}</span>
+              {% if pet.sexo == 'Macho' %}
+                <i class="fa-solid fa-mars sex-macho" title="Macho"></i>
+              {% else %}
+                <i class="fa-solid fa-venus sex-femea" title="Fêmea"></i>
+              {% endif %}
+            </div>
+            <p style="font-size: 0.8rem; color: var(--text-secondary); margin: 0;">
+              {{ pet.porte }} &bull; {{ pet.especie }}
+            </p>
+            <a href="{{ url_for('detalhes_animal', id=pet.id) }}" class="btn btn-outline" style="margin-top: 0.5rem; padding: 0.4rem; font-size: 0.85rem; width: 100%;">
+              Ver Detalhes
+            </a>
+          </div>
+        </div>
+      {% endfor %}
+      
+      <!-- Duplicado para criar o efeito infinito contínuo -->
+      {% for pet in adotados %}
+        <div class="carousel-card" style="opacity: 0.9;">
+          <div class="carousel-img-wrapper" style="position: relative;">
+            {% if pet.foto_url %}
+              <img src="{{ url_for('static', filename='uploads/' + pet.foto_url) }}" alt="Foto de {{ pet.nome }}" style="filter: grayscale(20%);">
+            {% else %}
+              <i class="fa-solid fa-paw carousel-placeholder"></i>
+            {% endif %}
+            <span style="position: absolute; top: 10px; right: 10px; background: rgba(99, 102, 241, 0.9); color: white; padding: 0.2rem 0.6rem; border-radius: 20px; font-size: 0.75rem; font-weight: bold; backdrop-filter: blur(5px);">
+              Adotado
+            </span>
+          </div>
+          <div class="carousel-info">
+            <div class="carousel-header">
+              <span class="carousel-name">{{ pet.nome }}</span>
+              {% if pet.sexo == 'Macho' %}
+                <i class="fa-solid fa-mars sex-macho" title="Macho"></i>
+              {% else %}
+                <i class="fa-solid fa-venus sex-femea" title="Fêmea"></i>
+              {% endif %}
+            </div>
+            <p style="font-size: 0.8rem; color: var(--text-secondary); margin: 0;">
+              {{ pet.porte }} &bull; {{ pet.especie }}
+            </p>
+            <a href="{{ url_for('detalhes_animal', id=pet.id) }}" class="btn btn-outline" style="margin-top: 0.5rem; padding: 0.4rem; font-size: 0.85rem; width: 100%;">
+              Ver Detalhes
+            </a>
+          </div>
+        </div>
+      {% endfor %}
+
+    </div>
+  </div>
+</section>
+{% endif %}
+
 <script>
   document.addEventListener('DOMContentLoaded', () => {
     const counters = document.querySelectorAll('.stat-number-counter');

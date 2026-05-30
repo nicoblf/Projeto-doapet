@@ -1,0 +1,142 @@
+{% extends "base.html" %}
+
+{% block title %}Notificações - PetMatch{% endblock %}
+
+{% block head %}
+<style>
+  .notificacoes-container {
+    max-width: 750px;
+    margin: 2rem auto;
+  }
+  .notif-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border-card);
+    border-radius: 14px;
+    padding: 1.25rem 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    margin-bottom: 1rem;
+    box-shadow: var(--shadow-premium);
+    backdrop-filter: blur(10px);
+    transition: var(--transition);
+  }
+  .notif-card:hover {
+    transform: translateY(-2px);
+    border-color: rgba(99, 102, 241, 0.2);
+  }
+  .notif-card.nao-lida {
+    border-left: 4px solid var(--primary);
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.04), var(--bg-card));
+  }
+  .notif-icon-wrapper {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.3rem;
+    flex-shrink: 0;
+  }
+  .icon-favorito {
+    background: rgba(245, 158, 11, 0.1);
+    color: #f59e0b;
+    border: 1px solid rgba(245, 158, 11, 0.2);
+  }
+  .icon-candidatura {
+    background: rgba(16, 185, 129, 0.1);
+    color: var(--primary);
+    border: 1px solid rgba(16, 185, 129, 0.2);
+  }
+  .notif-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+  .notif-text {
+    font-size: 0.95rem;
+    color: var(--text-primary);
+    margin: 0;
+    line-height: 1.4;
+  }
+  .notif-time {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    opacity: 0.7;
+  }
+  @media (max-width: 600px) {
+    .notif-card {
+      padding: 1rem;
+      gap: 1rem;
+    }
+    .notif-icon-wrapper {
+      width: 40px;
+      height: 40px;
+      font-size: 1.1rem;
+    }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="notificacoes-container">
+  
+  <div class="breadcrumbs" style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 1.5rem;">
+    <a href="{{ url_for('index') }}" style="color: var(--text-secondary); text-decoration: none;">Início</a>
+    <i class="fa-solid fa-chevron-right" style="font-size: 0.75rem;"></i>
+    <span>Notificações</span>
+  </div>
+
+  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
+    <div>
+      <h1 style="font-size: 2.2rem; font-weight: 800; background: linear-gradient(90deg, var(--primary), var(--secondary)); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; margin: 0 0 0.25rem 0;">
+        <i class="fa-solid fa-bell" style="-webkit-text-fill-color: initial; color: var(--primary);"></i> Central de Notificações
+      </h1>
+      <p style="color: var(--text-secondary); margin: 0;">Fique por dentro das interações com os animais que você cadastrou.</p>
+    </div>
+    {% if notificacoes %}
+      <form action="{{ url_for('limpar_notificacoes') }}" method="POST">
+        <button type="submit" class="btn btn-outline" style="padding: 0.5rem 1.25rem; font-size: 0.9rem; border-color: rgba(239, 68, 68, 0.3) !important; color: var(--status-red) !important; display: flex; align-items: center; gap: 0.4rem;">
+          <i class="fa-solid fa-trash-can"></i> Limpar Tudo
+        </button>
+      </form>
+    {% endif %}
+  </div>
+
+  {% if notificacoes %}
+    {% for notif in notificacoes %}
+      <div class="notif-card {% if not notif.lida %}nao-lida{% endif %}">
+        
+        {% if 'favoritou' in notif.mensagem %}
+          <div class="notif-icon-wrapper icon-favorito">
+            <i class="fa-solid fa-star"></i>
+          </div>
+        {% else %}
+          <div class="notif-icon-wrapper icon-candidatura">
+            <i class="fa-solid fa-paw"></i>
+          </div>
+        {% endif %}
+
+        <div class="notif-content">
+          <p class="notif-text">{{ notif.mensagem | safe }}</p>
+          <span class="notif-time">
+            <i class="fa-regular fa-clock"></i> {{ notif.data_criacao.strftime('%d/%m/%Y às %H:%M') }}
+          </span>
+        </div>
+
+      </div>
+    {% endfor %}
+  {% else %}
+    <div style="text-align: center; padding: 5rem 1rem; background: var(--bg-card); border: 1px solid var(--border-card); border-radius: 16px;">
+      <i class="fa-solid fa-bell-slash" style="font-size: 3rem; color: var(--text-secondary); opacity: 0.35; margin-bottom: 1.25rem;"></i>
+      <p style="font-size: 1.15rem; color: var(--text-secondary); margin-bottom: 0.5rem; font-weight: 600;">Sua caixa de notificações está vazia.</p>
+      <p style="font-size: 0.9rem; color: var(--text-secondary); opacity: 0.7;">
+        Quando alguém favoritar ou enviar uma candidatura de adoção para seus pets, você será notificado aqui.
+      </p>
+    </div>
+  {% endif %}
+
+</div>
+{% endblock %}

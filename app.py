@@ -1,4 +1,5 @@
 import os
+import re
 from datetime import datetime, date
 from flask import Flask, render_template, request, flash, redirect, url_for, jsonify
 from flask_login import login_user, logout_user, login_required, current_user
@@ -19,7 +20,7 @@ migrate.init_app(app, db)
 login_manager.login_view = 'login'
 
 # Importar modelos após inicializar as extensões
-from models import User, Animal, Vacina, FormularioAdotante, Candidatura, Favorito, LogAcao, Mensagem
+from models import User, Animal, Vacina, FormularioAdotante, Candidatura, Favorito, LogAcao, Mensagem, Notificacao
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -33,6 +34,29 @@ def registrar_log(usuario_id, acao):
     except Exception as e:
         db.session.rollback()
         print(f"Erro ao registrar log: {e}")
+
+def filtrar_profanidades(texto):
+    if not texto:
+        return texto
+    
+    # Lista de palavrões comuns em português
+    palavroes = [
+        r'puta', r'puto', r'porra', r'caralho', r'foder', r'foda', r'fode', r'foderam', r'fodesse',
+        r'arrombado', r'arrombada', r'viado', r'veado', r'merda', r'bosta', r'escroto', r'escrota',
+        r'filho\s*da\s*puta', r'fdp', r'cu', r'cú', r'corno', r'corna', r'otário', r'otaria', r'otario',
+        r'otária', r'cacete', r'imbecil', r'babaca', r'pinto', r'caralinho', r'buceta', r'xereca',
+        r'desgraçado', r'desgraçada', r'filho\s*de\s*puta', r'vai\s+se\s+fuder', r'vai\s+se\s+foder',
+        r'vai\s+tomar\s+no\s+cu', r'vai\s+tomar\s+no\s+cú'
+    ]
+    
+    # Criar padrão regex com limites de palavras (\b) para evitar falsos positivos
+    padrao = re.compile(r'\b(' + '|'.join(palavroes) + r')\b', re.IGNORECASE)
+    
+    def substituir(match):
+        palavra = match.group(0)
+        return '*' * len(palavra)
+        
+    return padrao.sub(substituir, texto)
 
 # Rota para inicializar o banco de dados (útil localmente e em produção de forma simples)
 @app.route('/init-db')
@@ -63,7 +87,7 @@ def init_db():
             status='Disponivel',
             foto_url='pipoca.png',
             ong_id=admin.id,
-            tags_string='Dócil, Brincalhão, Castrado'
+            tags_string='Dócil, Brincalhão, Castrado, ONG/Protetor'
         )
         pet2 = Animal(
             nome='Mingau',
@@ -73,7 +97,7 @@ def init_db():
             status='Disponivel',
             foto_url='mingau.png',
             ong_id=admin.id,
-            tags_string='Independente, Calmo'
+            tags_string='Independente, Calmo, ONG/Protetor'
         )
         pet3 = Animal(
             nome='Thor',
@@ -83,7 +107,7 @@ def init_db():
             status='Negociacao',
             foto_url='thor.png',
             ong_id=admin.id,
-            tags_string='Protetor, Ativo, Precisa de espaço'
+            tags_string='Protetor, Ativo, Precisa de espaço, ONG/Protetor'
         )
         pet4 = Animal(
             nome='Luna',
@@ -93,7 +117,7 @@ def init_db():
             status='Disponivel',
             foto_url='luna.png',
             ong_id=admin.id,
-            tags_string='Brincalhona, Amigável, Curiosa'
+            tags_string='Brincalhona, Amigável, Curiosa, ONG/Protetor'
         )
         pet5 = Animal(
             nome='Bob',
@@ -103,7 +127,7 @@ def init_db():
             status='Disponivel',
             foto_url='bob.png',
             ong_id=admin.id,
-            tags_string='Ativo, Carinhoso, Inteligente'
+            tags_string='Ativo, Carinhoso, Inteligente, ONG/Protetor'
         )
         pet6 = Animal(
             nome='Mel',
@@ -113,7 +137,7 @@ def init_db():
             status='Disponivel',
             foto_url='mel.png',
             ong_id=admin.id,
-            tags_string='Dócil, Calma, Castrada'
+            tags_string='Dócil, Calma, Castrada, ONG/Protetor'
         )
         pet7 = Animal(
             nome='Fred',
@@ -123,7 +147,7 @@ def init_db():
             status='Disponivel',
             foto_url='fred.png',
             ong_id=admin.id,
-            tags_string='Tagarela, Manso, Ativo'
+            tags_string='Tagarela, Manso, Ativo, ONG/Protetor'
         )
         pet8 = Animal(
             nome='Alvin',
@@ -133,7 +157,7 @@ def init_db():
             status='Disponivel',
             foto_url='alvin.png',
             ong_id=admin.id,
-            tags_string='Curioso, Brincalhão, Rápido'
+            tags_string='Curioso, Brincalhão, Rápido, ONG/Protetor'
         )
         db.session.add_all([pet1, pet2, pet3, pet4, pet5, pet6, pet7, pet8])
         db.session.commit()
@@ -173,13 +197,17 @@ def index():
     # Buscar animais ativos (disponíveis ou em negociação) para o carrossel da home
     animais = Animal.query.filter(Animal.status != 'Doado').order_by(Animal.data_cadastro.desc()).all()
     
-    # Estatísticas com números base demonstrativos + dinâmicos do banco
-    total_adotados = 12 + Animal.query.filter_by(status='Doado').count()
-    total_candidaturas = 45 + Candidatura.query.count()
-    total_cadastrados = 8 + Animal.query.count()
+    # Buscar animais adotados (status = Doado)
+    adotados = Animal.query.filter_by(status='Doado').order_by(Animal.data_cadastro.desc()).all()
+    
+    # Estatísticas reais com base nos dados do banco
+    total_adotados = Animal.query.filter_by(status='Doado').count()
+    total_candidaturas = Candidatura.query.count()
+    total_cadastrados = Animal.query.count()
     
     return render_template('index.html', 
                            animais=animais, 
+                           adotados=adotados,
                            total_adotados=total_adotados, 
                            total_candidaturas=total_candidaturas, 
                            total_cadastrados=total_cadastrados)
@@ -250,6 +278,15 @@ def candidatar_animal(id):
         status='Pendente'
     )
     db.session.add(nova_candidatura)
+    
+    # Criar notificação para o dono do pet
+    if pet.ong_id != current_user.id:
+        nova_notif = Notificacao(
+            user_id=pet.ong_id,
+            mensagem=f"<strong>{current_user.nome}</strong> se candidatou para adotar seu pet <strong>{pet.nome}</strong>!"
+        )
+        db.session.add(nova_notif)
+        
     db.session.commit()
     
     registrar_log(current_user.id, f"Se candidatou para adotar o pet: {pet.nome} (ID: {pet.id})")
@@ -270,6 +307,15 @@ def favoritar_animal(id):
     else:
         novo_favorito = Favorito(user_id=current_user.id, animal_id=pet.id)
         db.session.add(novo_favorito)
+        
+        # Criar notificação para o dono do pet
+        if pet.ong_id != current_user.id:
+            nova_notif = Notificacao(
+                user_id=pet.ong_id,
+                mensagem=f"<strong>{current_user.nome}</strong> favoritou seu pet <strong>{pet.nome}</strong>!"
+            )
+            db.session.add(nova_notif)
+            
         db.session.commit()
         registrar_log(current_user.id, f"Adicionou pet aos favoritos: {pet.nome} (ID: {pet.id})")
         flash(f"{pet.nome} foi adicionado aos seus favoritos!", "success")
@@ -287,15 +333,31 @@ def cadastrar_pet():
         sexo = request.form.get('sexo')
         tags = request.form.get('tags', '')
         
-        # Upload de foto
+        # Upload de foto com limite de 5MB
         foto = request.files.get('foto')
         foto_nome = None
         if foto and foto.filename:
+            # Verificar tamanho do arquivo
+            foto.seek(0, os.SEEK_END)
+            tamanho_arquivo = foto.tell()
+            foto.seek(0) # resetar ponteiro de leitura do arquivo
+            
+            if tamanho_arquivo > 5 * 1024 * 1024:
+                flash("A imagem selecionada é maior que 5MB. Escolha uma foto menor.", "danger")
+                return render_template('cadastrar_pet.html')
+
             # Gerar nome único para evitar colisões
             ext = os.path.splitext(foto.filename)[1]
             foto_nome = f"pet_{int(datetime.now().timestamp())}{ext}"
             os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
             foto.save(os.path.join(app.config['UPLOAD_FOLDER'], foto_nome))
+            
+        # Adicionar tag "ONG/Protetor" se for cadastrado por uma ONG ou Protetor
+        if current_user.tipo in ['ONG', 'PROTETOR']:
+            tag_list = [t.strip() for t in tags.split(',') if t.strip()]
+            if "ONG/Protetor" not in tag_list:
+                tag_list.append("ONG/Protetor")
+            tags = ', '.join(tag_list)
             
         novo_pet = Animal(
             nome=nome,
@@ -376,6 +438,29 @@ def deletar_animal(id):
     if current_user.is_admin:
         return redirect(url_for('admin_dashboard'))
     return redirect(url_for('catalogo'))
+
+@app.route('/animal/<int:id>/adotado', methods=['POST'])
+@login_required
+def marcar_adotado(id):
+    pet = Animal.query.get_or_404(id)
+    
+    # Apenas o criador (ONG/dono) do pet ou admin pode marcar como adotado
+    if current_user.id != pet.ong_id and not current_user.is_admin:
+        flash("Você não tem permissão para alterar o status deste animal.", "danger")
+        return redirect(url_for('ver_perfil'))
+        
+    pet.status = 'Doado'
+    
+    # Recusar candidaturas pendentes deste animal
+    candidaturas_pendentes = Candidatura.query.filter_by(animal_id=pet.id, status='Pendente').all()
+    for cand in candidaturas_pendentes:
+        cand.status = 'Recusado'
+        
+    db.session.commit()
+    
+    registrar_log(current_user.id, f"Marcou o pet {pet.nome} como adotado (ID: {pet.id})")
+    flash(f"Que ótima notícia! {pet.nome} agora está marcado como adotado. 🎉", "success")
+    return redirect(url_for('ver_perfil'))
 
 @app.route('/admin/usuario/<int:id>/deletar', methods=['POST'])
 @login_required
@@ -576,18 +661,17 @@ def ver_favoritos():
 @app.route('/perfil')
 @login_required
 def ver_perfil():
-    meus_pets = []
+    meus_pets = Animal.query.filter_by(ong_id=current_user.id).order_by(Animal.data_cadastro.desc()).all()
     meus_favoritos = []
     minhas_candidaturas_pets = []
     if current_user.tipo in ['ONG', 'PROTETOR']:
-        meus_pets = Animal.query.filter_by(ong_id=current_user.id).order_by(Animal.data_cadastro.desc()).all()
         total_pets = len(meus_pets)
         total_solicitacoes = Candidatura.query.join(Animal).filter(Animal.ong_id == current_user.id).count()
         stats = {'total_pets': total_pets, 'total_solicitacoes': total_solicitacoes}
     else:
         total_solicitacoes = Candidatura.query.filter_by(adotante_id=current_user.id).count()
         total_favs = Favorito.query.filter_by(user_id=current_user.id).count()
-        stats = {'total_solicitacoes': total_solicitacoes, 'total_favs': total_favs}
+        stats = {'total_pets': len(meus_pets), 'total_solicitacoes': total_solicitacoes, 'total_favs': total_favs}
         # Buscar animais favoritados
         favoritos = Favorito.query.filter_by(user_id=current_user.id).all()
         meus_favoritos = [f.animal for f in favoritos]
@@ -602,15 +686,25 @@ def ver_perfil():
 @app.route('/minhas-conversas')
 @login_required
 def minhas_conversas():
-    """Lista todas as conversas ativas (candidaturas aprovadas) do usuário."""
-    if current_user.tipo in ['ONG', 'PROTETOR']:
-        # ONGs veem conversas dos pets que cadastraram
-        candidaturas = Candidatura.query.filter_by(status='Aprovado').join(Animal).filter(Animal.ong_id == current_user.id).order_by(Candidatura.data_solicitacao.desc()).all()
-    else:
-        # Adotantes veem suas candidaturas aprovadas
-        candidaturas = Candidatura.query.filter_by(adotante_id=current_user.id, status='Aprovado').order_by(Candidatura.data_solicitacao.desc()).all()
+    """Lista todas as conversas ativas (candidaturas pendentes ou aprovadas) do usuário."""
+    # Buscar candidaturas onde o usuário é o adotante OU é dono do pet (quem cadastrou)
+    # Apenas candidaturas com status 'Pendente' ou 'Aprovado'
+    candidaturas_adotante = Candidatura.query.filter(
+        Candidatura.status.in_(['Pendente', 'Aprovado']),
+        Candidatura.adotante_id == current_user.id
+    ).all()
     
-    # Para cada candidatura, buscar a última mensagem
+    candidaturas_dono = Candidatura.query.filter(
+        Candidatura.status.in_(['Pendente', 'Aprovado'])
+    ).join(Animal).filter(
+        Animal.ong_id == current_user.id
+    ).all()
+    
+    # Unificar e ordenar por data de solicitação decrescente
+    candidaturas_set = set(candidaturas_adotante + candidaturas_dono)
+    candidaturas = sorted(list(candidaturas_set), key=lambda x: x.data_solicitacao, reverse=True)
+    
+    # Para cada candidatura, buscar a última mensagem e contar as não lidas
     conversas = []
     for cand in candidaturas:
         ultima_msg = Mensagem.query.filter_by(candidatura_id=cand.id).order_by(Mensagem.data_envio.desc()).first()
@@ -635,9 +729,9 @@ def chat(candidatura_id):
         flash("Você não tem permissão para acessar esta conversa.", "danger")
         return redirect(url_for('index'))
     
-    # Verificar se a candidatura foi aprovada
-    if candidatura.status != 'Aprovado':
-        flash("O chat está disponível apenas para candidaturas aprovadas.", "info")
+    # Verificar se a candidatura foi aprovada ou está pendente
+    if candidatura.status not in ['Pendente', 'Aprovado']:
+        flash("O chat está disponível apenas para candidaturas ativas.", "info")
         return redirect(url_for('minhas_candidaturas'))
     
     # Marcar mensagens do outro como lidas
@@ -666,12 +760,14 @@ def enviar_mensagem(candidatura_id):
     if current_user.id != candidatura.adotante_id and current_user.id != pet.ong_id:
         return jsonify({'error': 'Sem permissão'}), 403
     
-    if candidatura.status != 'Aprovado':
+    if candidatura.status not in ['Pendente', 'Aprovado']:
         return jsonify({'error': 'Chat indisponível'}), 403
     
     conteudo = request.json.get('conteudo', '').strip()
     if not conteudo:
         return jsonify({'error': 'Mensagem vazia'}), 400
+    
+    conteudo = filtrar_profanidades(conteudo)
     
     nova_msg = Mensagem(
         candidatura_id=candidatura_id,
@@ -739,6 +835,42 @@ def ver_perfil_publico(user_id):
         stats = {'total_solicitacoes': total_solicitacoes}
     
     return render_template('perfil_publico.html', usuario=usuario, stats=stats, pets_usuario=pets_usuario)
+
+@app.route('/notificacoes')
+@login_required
+def ver_notificacoes():
+    notificacoes = Notificacao.query.filter_by(user_id=current_user.id).order_by(Notificacao.data_criacao.desc()).all()
+    # Marcar todas como lidas quando o usuário entra na página
+    Notificacao.query.filter_by(user_id=current_user.id, lida=False).update({'lida': True})
+    db.session.commit()
+    return render_template('notificacoes.html', notificacoes=notificacoes)
+
+@app.route('/notificacoes/limpar', methods=['POST'])
+@login_required
+def limpar_notificacoes():
+    Notificacao.query.filter_by(user_id=current_user.id).delete()
+    db.session.commit()
+    flash("Notificações limpas com sucesso.", "success")
+    return redirect(url_for('ver_notificacoes'))
+
+@app.context_processor
+def inject_unread_counts():
+    if current_user.is_authenticated:
+        from sqlalchemy import or_
+        msg_count = Mensagem.query.join(Candidatura).join(Animal).filter(
+            Candidatura.status.in_(['Pendente', 'Aprovado']),
+            Mensagem.lida == False,
+            Mensagem.remetente_id != current_user.id
+        ).filter(
+            or_(
+                Candidatura.adotante_id == current_user.id,
+                Animal.ong_id == current_user.id
+            )
+        ).count()
+        
+        notif_count = Notificacao.query.filter_by(user_id=current_user.id, lida=False).count()
+        return dict(unread_messages_count=msg_count, unread_notifications_count=notif_count)
+    return dict(unread_messages_count=0, unread_notifications_count=0)
 
 if __name__ == '__main__':
     app.run(debug=True)

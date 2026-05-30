@@ -117,7 +117,26 @@
             <li><a href="{{ url_for('ver_favoritos') }}">Favoritos</a></li>
             <li><a href="{{ url_for('minhas_candidaturas') }}">Minhas Candidaturas</a></li>
           {% endif %}
-          <li><a href="{{ url_for('minhas_conversas') }}"><i class="fa-solid fa-comments" style="font-size: 0.85rem;"></i> Conversas</a></li>
+          <li>
+            <a href="{{ url_for('ver_notificacoes') }}" title="Notificações">
+              <i class="fa-solid fa-bell" style="font-size: 0.85rem;"></i> Notificações
+              {% if unread_notifications_count > 0 %}
+                <span style="background-color: #f59e0b; color: black; border-radius: 50%; padding: 0.15rem 0.45rem; font-size: 0.75rem; font-weight: bold; margin-left: 0.25rem; display: inline-flex; align-items: center; justify-content: center; height: 18px; min-width: 18px;">
+                  {{ unread_notifications_count }}
+                </span>
+              {% endif %}
+            </a>
+          </li>
+          <li>
+            <a href="{{ url_for('minhas_conversas') }}">
+              <i class="fa-solid fa-comments" style="font-size: 0.85rem;"></i> Conversas
+              {% if unread_messages_count > 0 %}
+                <span style="background-color: var(--status-red); color: white; border-radius: 50%; padding: 0.15rem 0.45rem; font-size: 0.75rem; font-weight: bold; margin-left: 0.25rem; display: inline-flex; align-items: center; justify-content: center; height: 18px; min-width: 18px;">
+                  {{ unread_messages_count }}
+                </span>
+              {% endif %}
+            </a>
+          </li>
           <li><a href="{{ url_for('ver_perfil') }}" style="color: var(--text-primary); font-weight: 600;"><i class="fa-solid fa-circle-user"></i> {{ current_user.nome }}</a></li>
           <li><a href="{{ url_for('logout') }}" class="btn btn-outline">Sair</a></li>
         {% else %}
@@ -133,9 +152,17 @@
       {% if messages %}
         <div style="margin-bottom: 2rem;">
           {% for category, message in messages %}
-            <div class="btn btn-outline" style="width: 100%; text-align: left; padding: 1rem; border-color: var(--primary); margin-bottom: 0.5rem; background-color: rgba(16, 185, 129, 0.1);">
-              {{ message }}
-            </div>
+            {% if category == 'danger' %}
+              <div style="width: 100%; text-align: left; padding: 1rem; border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 8px; margin-bottom: 0.5rem; background-color: rgba(239, 68, 68, 0.1); color: var(--status-red); display: flex; align-items: center; gap: 0.5rem; font-weight: 500;">
+                <i class="fa-solid fa-circle-xmark"></i>
+                <span>{{ message }}</span>
+              </div>
+            {% else %}
+              <div style="width: 100%; text-align: left; padding: 1rem; border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 8px; margin-bottom: 0.5rem; background-color: rgba(16, 185, 129, 0.1); color: var(--status-green); display: flex; align-items: center; gap: 0.5rem; font-weight: 500;">
+                <i class="fa-solid fa-circle-check"></i>
+                <span>{{ message }}</span>
+              </div>
+            {% endif %}
           {% endfor %}
         </div>
       {% endif %}

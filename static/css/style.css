@@ -120,22 +120,24 @@ body.high-contrast header {
 }
 
 .nav-container {
-  max-width: 1200px;
+  max-width: 1400px;
+  width: 100%;
   margin: 0 auto;
-  padding: 1rem 2rem;
+  padding: 1rem 1.5rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
 }
 
 .logo {
-  font-size: 1.5rem;
+  font-size: 1.4rem;
   font-weight: 700;
   color: var(--text-primary);
   text-decoration: none;
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  white-space: nowrap;
 }
 
 .logo span {
@@ -144,7 +146,7 @@ body.high-contrast header {
 
 .nav-links {
   display: flex;
-  gap: 1.5rem;
+  gap: 1rem;
   align-items: center;
   list-style: none;
 }
@@ -153,7 +155,9 @@ body.high-contrast header {
   color: var(--text-secondary);
   text-decoration: none;
   font-weight: 500;
+  font-size: 0.9rem;
   transition: var(--transition);
+  white-space: nowrap;
 }
 
 .nav-links a:hover, .nav-links a.active {
@@ -267,6 +271,13 @@ main {
   width: 100%;
   margin: 0 auto;
   padding: 2rem;
+  box-sizing: border-box;
+}
+
+@media (max-width: 600px) {
+  main {
+    padding: 1rem 0.5rem;
+  }
 }
 
 /* Hero Section */
@@ -697,7 +708,7 @@ body.high-contrast .nav-toggle {
 }
 
 /* Breakpoint para Tablet/Mobile */
-@media (max-width: 768px) {
+@media (max-width: 1150px) {
   .nav-toggle {
     display: block;
   }

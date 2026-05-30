@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 from extensions import db
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -57,7 +57,7 @@ class Animal(BaseModel):
     foto_url = db.Column(db.String(256), nullable=True)
     ong_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     tags_string = db.Column(db.String(256), nullable=True, default='') # Salva tags separadas por vírgula (ex: "Dócil,Castrado,Ativo")
-    data_cadastro = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc).replace(tzinfo=None))
+    data_cadastro = db.Column(db.DateTime, default=lambda: datetime.now(timezone(timedelta(hours=-3))).replace(tzinfo=None))
     
     # Relacionamentos
     vacinas = db.relationship('Vacina', backref='animal', cascade='all, delete-orphan', lazy=True)
@@ -112,7 +112,7 @@ class Candidatura(BaseModel):
     id = db.Column(db.Integer, primary_key=True)
     animal_id = db.Column(db.Integer, db.ForeignKey('animais.id'), nullable=False)
     adotante_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
-    data_solicitacao = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc).replace(tzinfo=None))
+    data_solicitacao = db.Column(db.DateTime, default=lambda: datetime.now(timezone(timedelta(hours=-3))).replace(tzinfo=None))
     status = db.Column(db.String(20), nullable=False, default='Pendente') # 'Pendente', 'Aprovado', 'Recusado'
 
 class LogAcao(BaseModel):
@@ -121,7 +121,7 @@ class LogAcao(BaseModel):
     id = db.Column(db.Integer, primary_key=True)
     usuario_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True)
     acao = db.Column(db.String(255), nullable=False)
-    data_hora = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc).replace(tzinfo=None))
+    data_hora = db.Column(db.DateTime, default=lambda: datetime.now(timezone(timedelta(hours=-3))).replace(tzinfo=None))
     
     usuario = db.relationship('User', backref='logs', lazy=True)
 
@@ -132,8 +132,19 @@ class Mensagem(BaseModel):
     candidatura_id = db.Column(db.Integer, db.ForeignKey('candidaturas.id'), nullable=False)
     remetente_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     conteudo = db.Column(db.Text, nullable=False)
-    data_envio = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc).replace(tzinfo=None))
+    data_envio = db.Column(db.DateTime, default=lambda: datetime.now(timezone(timedelta(hours=-3))).replace(tzinfo=None))
     lida = db.Column(db.Boolean, default=False)
     
     remetente = db.relationship('User', backref='mensagens_enviadas', lazy=True)
     candidatura = db.relationship('Candidatura', backref='mensagens', lazy=True)
+
+class Notificacao(BaseModel):
+    __tablename__ = 'notificacoes'
+    
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False) # User receiving the notification
+    mensagem = db.Column(db.String(255), nullable=False)
+    data_criacao = db.Column(db.DateTime, default=lambda: datetime.now(timezone(timedelta(hours=-3))).replace(tzinfo=None))
+    lida = db.Column(db.Boolean, default=False)
+    
+    user = db.relationship('User', backref=db.backref('notificacoes', cascade='all, delete-orphan', lazy=True))
