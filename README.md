@@ -98,3 +98,5 @@ Após rodar `/init-db`, você pode utilizar as seguintes credenciais para testar
 *   `Mensagem`: Histórico de mensagens trocadas via chat privado.
 *   `Notificacao`: Alertas gerados ao usuário sobre interações (favoritos, candidaturas e conversas).
 *   `LogAcao`: Registro e auditoria de ações importantes no sistema (criações, deleções, logins, etc.).
+
+https://nicolasblf.pythonanywhere.com/
